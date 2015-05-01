@@ -2,84 +2,88 @@
 using System.Text;
 using RimWorld;
 using Verse;
+// ReSharper disable FieldCanBeMadeReadOnly.Local
 
 
 namespace Infusion
 {
 	public class StatPart_InfusionModifier : StatPart
 	{
-		private StatMod shock = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod impact = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod needle = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod charisma = new StatMod { multiplier = 1, offset = 0 };
+		private StatMod shock = new StatMod();
+		private StatMod impact = new StatMod();
+		private StatMod needle = new StatMod();
+		private StatMod charisma = new StatMod();
 
-		private StatMod fire = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod water = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod plain = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod rock = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod creation = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod stream = new StatMod { multiplier = 1, offset = 0 };
+		private StatMod plain = new StatMod();
+		private StatMod rock = new StatMod();
+		private StatMod creation = new StatMod();
+		private StatMod stream = new StatMod();
+		private StatMod salt = new StatMod();
 
-		private StatMod sunlight = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod starlight = new StatMod { multiplier = 1, offset = 0 };
-		private StatMod pain = new StatMod { multiplier = 1, offset = 0 };
+		private StatMod sunlight = new StatMod();
+		private StatMod starlight = new StatMod();
+		private StatMod pain = new StatMod();
+		private StatMod automaton = new StatMod();
+		private StatMod disassembling = new StatMod();
 
 		public override void TransformValue(StatRequest req, ref float val)
 		{
-			InfusionTypes infType;
-			if (!req.HasThing || !req.Thing.TryGetInfusion(out infType))
+			InfusionSuffix infSuffix;
+			if (!req.HasThing || !req.Thing.TryGetInfusion(out infSuffix))
 				return;
 
-			val += StatModOf(infType).offset;
-			val *= StatModOf(infType).multiplier;
+			val += StatModOf(infSuffix).offset;
+			val *= StatModOf(infSuffix).multiplier;
 		}
 		public override string ExplanationPart(StatRequest req)
 		{
-			InfusionTypes infType;
-			if (!req.HasThing || !req.Thing.TryGetInfusion(out infType))
+			InfusionSuffix infSuffix;
+			if (!req.HasThing || !req.Thing.TryGetInfusion(out infSuffix))
 				return null;
 
 			var result = new StringBuilder();
 			result.AppendLine("Infusion bonuses");
-			if (StatModOf(infType).offset != 0)
-				result.AppendLine("    " + infType.GetInfusionLabel().CapitalizeFirst() + ": +" + StatModOf(infType).offset.ToAbs().ToStringPercent());
-			if (StatModOf(infType).multiplier != 1)
-				result.AppendLine("    " + infType.GetInfusionLabel().CapitalizeFirst() + ": x" + StatModOf(infType).multiplier.ToStringPercent());
+			if (StatModOf(infSuffix).offset != 0)
+				result.AppendLine("    " + infSuffix.GetInfusionLabel().CapitalizeFirst() + ": +" + StatModOf(infSuffix).offset.ToAbs().ToStringPercent());
+			if (StatModOf(infSuffix).multiplier != 1)
+				result.AppendLine("    " + infSuffix.GetInfusionLabel().CapitalizeFirst() + ": x" + StatModOf(infSuffix).multiplier.ToStringPercent());
 			return result.ToString();
 		}
 		//Decide what modifier StatPart should use
-		private StatMod StatModOf(InfusionTypes infTypes)
+		protected StatMod StatModOf(InfusionSuffix infSuffix)
 		{
-			switch (infTypes)
+			switch (infSuffix)
 			{
-				case InfusionTypes.Shock:
+				case InfusionSuffix.Shock:
 					return shock;
-				case InfusionTypes.Impact:
+				case InfusionSuffix.Impact:
 					return impact;
-				case InfusionTypes.Needle:
+				case InfusionSuffix.Needle:
 					return needle;
-				case InfusionTypes.Charisma:
+				case InfusionSuffix.Charisma:
 					return charisma;
 
-				case InfusionTypes.Fire:
-					return fire;
-				case InfusionTypes.Water:
-					return water;
-				case InfusionTypes.Plain:
+				case InfusionSuffix.Plain:
 					return plain;
-				case InfusionTypes.Rock:
+				case InfusionSuffix.Rock:
 					return rock;
-				case InfusionTypes.Creation:
+				case InfusionSuffix.Creation:
 					return creation;
-				case InfusionTypes.Stream:
+				case InfusionSuffix.Stream:
 					return stream;
+				case InfusionSuffix.Salt:
+					return salt;
 
-				case InfusionTypes.Sunlight:
+				case InfusionSuffix.Sunlight:
 					return sunlight;
-				case InfusionTypes.Starlight:
+				case InfusionSuffix.Starlight:
 					return starlight;
-				case InfusionTypes.Pain:
+				case InfusionSuffix.Pain:
 					return pain;
+				case InfusionSuffix.Automaton:
+					return automaton;
+				case InfusionSuffix.Disassembling:
+					return disassembling;
 
 				default:
 					throw new ArgumentOutOfRangeException();

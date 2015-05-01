@@ -8,9 +8,9 @@ namespace Infusion
     public class CompInfusion : ThingComp
     {
 	    private bool isInfused;
-	    private InfusionTypes infusion;
+	    private InfusionSuffix infusion;
 
-	    public InfusionTypes Infusion
+	    public InfusionSuffix Infusion
 	    {
 		    get { return infusion; }
 	    }
@@ -20,7 +20,7 @@ namespace Infusion
 			QualityCategory qc;
 			if (!parent.TryGetQuality(out qc) || qc <= QualityCategory.Good)
 			{
-				infusion = InfusionTypes.None;
+				infusion = InfusionSuffix.None;
 				return;
 			}
 
@@ -34,7 +34,7 @@ namespace Infusion
 			var rand = Rand.Range(0, 100);
 			if (rand >= chance)
 			{
-				infusion = InfusionTypes.None;
+				infusion = InfusionSuffix.None;
 				return;
 			}
 
@@ -46,18 +46,18 @@ namespace Infusion
 			rand = Rand.Range(0, 100);
 			if (rand >= 35)
 			{
-				rand = MathInfusion.Rand(InfusionTypes.Tier1, InfusionTypes.Tier2);
+				rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
 			}
 			else if (rand >= 10)
 			{
-				rand = MathInfusion.Rand(InfusionTypes.Tier2, InfusionTypes.Tier3);
+				rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
 			}
 			else
 			{
-				rand = MathInfusion.Rand(InfusionTypes.Tier3, InfusionTypes.End);
+				rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
 			}
 
-			infusion = (InfusionTypes)rand;
+			infusion = (InfusionSuffix)rand;
 			isInfused = true;
 
 			//For added hit points
@@ -69,7 +69,7 @@ namespace Infusion
 		{
 			base.PostExposeData();
 			Scribe_Values.LookValue(ref isInfused, "isInfused", false);
-			Scribe_Values.LookValue(ref infusion, "infusion", InfusionTypes.None);
+			Scribe_Values.LookValue(ref infusion, "infusion", InfusionSuffix.None);
 		}
 	    public override void PostSpawnSetup()
 	    {
@@ -94,19 +94,19 @@ namespace Infusion
 			if (compInfusion == null)
 				return false;
 
-			InfusionTypes infType;
-			other.TryGetInfusion(out infType);
-			return infusion == infType;
+			InfusionSuffix infSuffix;
+			other.TryGetInfusion(out infSuffix);
+			return infusion == infSuffix;
 		}
 
 		public override string CompInspectStringExtra()
 		{
-			return Infusion == InfusionTypes.None ? null : "Full name: " + parent.GetInfusedLabel();
+			return Infusion == InfusionSuffix.None ? null : "Full name: " + parent.GetInfusedLabel();
 		}
 
 	    public override string GetDescriptionPart()
 	    {
-		    if (Infusion == InfusionTypes.None)
+		    if (Infusion == InfusionSuffix.None)
 			    return null;
 			var result = new StringBuilder();
 		    result.AppendLine("This weapon is infused with a power of " + Infusion.GetInfusionLabel() + ".");

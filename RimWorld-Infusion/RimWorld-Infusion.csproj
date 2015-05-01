@@ -47,12 +47,13 @@
     <Compile Include="CompInfusion.cs" />
     <Compile Include="StatPart_InfusionWorkerTemperature.cs" />
     <Compile Include="Util\InfusionLabelManager.cs" />
-    <Compile Include="Util\InfusionTypes.cs" />
+    <Compile Include="Util\InfusionWords.cs" />
     <Compile Include="Util\InfusionUtility.cs" />
     <Compile Include="Util\MapComponent_LabelDrawer.cs" />
     <Compile Include="Util\Initializer\InitComponent.cs" />
     <Compile Include="Util\Initializer\Initializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\StaticSet.cs" />
     <Compile Include="Util\StatMod.cs" />
     <Compile Include="StatPart_InfusionModifier.cs" />
     <Compile Include="StatPart_InfusionWorker.cs" />

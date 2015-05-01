@@ -12,19 +12,19 @@ namespace Infusion
 		{
 			if (req.Def != ThingDef.Named("Human"))
 				return null;
-			InfusionTypes infType;
+			InfusionSuffix infSuffix;
 			var pawn = req.Thing as Pawn;
 			if (pawn == null)
 				return null;
-			if (!req.HasThing || !pawn.equipment.Primary.TryGetInfusion(out infType))
+			if (!req.HasThing || !pawn.equipment.Primary.TryGetInfusion(out infSuffix))
 				return null;
 
 			var result = new StringBuilder();
 			result.AppendLine("Infusion bonuses");
-			if (StatModOf(infType).offset != 0)
-				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort() + ": " + (StatModOf(infType).offset > 0 ? "+" : "-") + StatModOf(infType).offset.ToAbs().ToStringTemperatureOffset());
-			if (StatModOf(infType).multiplier != 1)
-				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort() + ": x" + StatModOf(infType).multiplier.ToStringPercent());
+			if (StatModOf(infSuffix).offset != 0)
+				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort() + ": " + (StatModOf(infSuffix).offset > 0 ? "+" : "-") + StatModOf(infSuffix).offset.ToAbs().ToStringTemperatureOffset());
+			if (StatModOf(infSuffix).multiplier != 1)
+				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort() + ": x" + StatModOf(infSuffix).multiplier.ToStringPercent());
 			return result.ToString();
 		}
 	}
