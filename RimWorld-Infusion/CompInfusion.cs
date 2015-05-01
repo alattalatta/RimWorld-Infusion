@@ -106,6 +106,8 @@ namespace Infusion
 
 	    public override string GetDescriptionPart()
 	    {
+		    if (Infusion == InfusionTypes.None)
+			    return null;
 			var result = new StringBuilder();
 		    result.AppendLine("This weapon is infused with a power of " + Infusion.GetInfusionLabel() + ".");
 		    result.AppendLine(Infusion.GetInfusionDescription());

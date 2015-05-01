@@ -112,7 +112,7 @@ namespace Infusion
 						"Huge bonus to damage.\nPenalty to psychic sensitivity. Small penalty to mental break threshold and immunity gain speed.";
 
 				default:
-					throw new ArgumentOutOfRangeException();
+					throw new ArgumentOutOfRangeException(infType.ToString());
 			}
 		}
 	}
