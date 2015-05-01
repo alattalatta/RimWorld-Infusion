@@ -17,21 +17,67 @@ namespace Infusion
 
 			foreach (var current in InfusionLabelManager.Drawee)
 			{
+				var prePass = false;
+				InfusionPrefix infPrefix;
+				if (!current.parent.TryGetInfusionPrefix(out infPrefix))
+				{
+					prePass = true;
+				}
+				var sufPass = false;
 				InfusionSuffix infSuffix;
-				if (!current.parent.TryGetInfusion(out infSuffix)) continue;
+				if (!current.parent.TryGetInfusionSuffix(out infSuffix))
+				{
+					sufPass = true;
+				}
+
+				if (prePass && sufPass)
+					continue;
 
 				Color color;
-				if(infSuffix > InfusionSuffix.Tier3)
-					color = new Color(1f, 0.5f, 0);
-				else if(infSuffix > InfusionSuffix.Tier2)
-					color = new Color(0.5f, 0, 0.5f);
+				//When there is only suffix
+				if (prePass)
+				{
+					if (infSuffix > InfusionSuffix.Tier3)
+						color = new Color(1f, 0.25f, 0);
+					else if (infSuffix > InfusionSuffix.Tier2)
+						color = new Color(1f, 0.5f, 0);
+					else
+						color = new Color(1f, 0.75f, 0);
+				}
+				//When there is only prefix
+				else if (sufPass)
+				{
+					if (infPrefix > InfusionPrefix.Tier3)
+						color = new Color(1f, 0.25f, 0);
+					else if (infPrefix > InfusionPrefix.Tier2)
+						color = new Color(1f, 0.5f, 0);
+					else
+						color = new Color(1f, 0.75f, 0);
+				}
+				//When there is both prefix and suffix
 				else
-					color = new Color(0.2f, 0.2f, 0.8f);
+				{
+					//Use color of higher tier
+					if (infPrefix > InfusionPrefix.Tier3 || infSuffix > InfusionSuffix.Tier3)
+						color = new Color(1f, 0.25f, 0);
+					else if (infPrefix > InfusionPrefix.Tier2 || infSuffix > InfusionSuffix.Tier2)
+						color = new Color(1f, 0.5f, 0);
+					else
+						color = new Color(1f, 0.75f, 0);
+				}
+
+				string label = null;
+				if (!prePass)
+				{
+					label += infPrefix.GetInfusionLabelShort();
+					if (!sufPass)
+						label += " ";
+				}
+				if (!sufPass)
+					label += infSuffix.GetInfusionLabelShort();
 
 				GenWorldUI.DrawThingLabel(
-					GenWorldUI.LabelDrawPosFor(current.parent, -0.64f),
-					infSuffix.GetInfusionLabel(),
-					color);
+					GenWorldUI.LabelDrawPosFor(current.parent, -0.64f), label, color);
 			}
 		}
 	}

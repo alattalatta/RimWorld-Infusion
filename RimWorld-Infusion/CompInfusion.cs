@@ -7,58 +7,91 @@ namespace Infusion
 {
     public class CompInfusion : ThingComp
     {
-	    private bool isInfused;
-	    private InfusionSuffix infusion;
+		private bool isInfused;
+		private InfusionPrefix prefix;
+	    private InfusionSuffix suffix;
 
-	    public InfusionSuffix Infusion
+	    public Pair<InfusionPrefix, InfusionSuffix> Infusion
 	    {
-		    get { return infusion; }
+		    get
+		    {
+			    return new Pair<InfusionPrefix, InfusionSuffix>
+			    {
+				    First = prefix,
+				    Second = suffix
+			    };
+		    }
 	    }
 
 		public void SetInfusion()
 		{
+			bool passPrefix = false, passSuffix = false;
 			QualityCategory qc;
 			if (!parent.TryGetQuality(out qc) || qc <= QualityCategory.Good)
 			{
-				infusion = InfusionSuffix.None;
+				prefix = InfusionPrefix.None;
+				suffix = InfusionSuffix.None;
 				return;
 			}
 
-			/**		Table
+			/** PrefixTable
+			 * Legendary	65
+			 * Masterwork	45
+			 * Excellent	25
+			 * Superior		05
+			 */
+			var chance = (int)qc * 20 - 95;
+			var rand1 = Rand.Range(0, 100);
+			if (rand1 >= chance)
+			{
+				prefix = InfusionPrefix.None;
+				passPrefix = true;
+			}
+
+			/**	SuffixTable
 			 * Legendary	80
 			 * Masterwork	65
 			 * Excellent	50
 			 * Superior		35
 			 */
-			var chance = (int)qc * 15 - 40;
-			var rand = Rand.Range(0, 100);
-			if (rand >= chance)
+			chance = (int) qc*15 - 40;
+			rand1 = Rand.Range(0, 100);
+			if (rand1 >= chance)
 			{
-				infusion = InfusionSuffix.None;
-				return;
+				suffix = InfusionSuffix.None;
+				passSuffix = true;
 			}
 
+			if (passPrefix && passSuffix)
+				return;
+
 			/**		Table
-			 * Tier 1		65
-			 * Tier 2		35
-			 * Tier 3		10
+			 * Tier 1		50
+			 * Tier 2		38
+			 * Tier 3		12
 			 */
-			rand = Rand.Range(0, 100);
-			if (rand >= 35)
+			int rand2;
+			rand1 = Rand.Range(0, 100);
+			if (rand1 >= 50)
 			{
-				rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
+				rand1 = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
+				rand2 = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
 			}
-			else if (rand >= 10)
+			else if (rand1 >= 10)
 			{
-				rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
+				rand1 = MathInfusion.Rand(InfusionPrefix.Tier2, InfusionPrefix.Tier3);
+				rand2 = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
 			}
 			else
 			{
-				rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
+				rand1 = MathInfusion.Rand(InfusionPrefix.Tier3, InfusionPrefix.End);
+				rand2 = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
 			}
 
-			infusion = (InfusionSuffix)rand;
-			isInfused = true;
+			if(!passPrefix)
+				prefix = (InfusionPrefix) rand1;
+			if(!passSuffix)
+				suffix = (InfusionSuffix) rand2;
 
 			//For added hit points
 			parent.HitPoints = parent.MaxHitPoints;
@@ -69,7 +102,8 @@ namespace Infusion
 		{
 			base.PostExposeData();
 			Scribe_Values.LookValue(ref isInfused, "isInfused", false);
-			Scribe_Values.LookValue(ref infusion, "infusion", InfusionSuffix.None);
+			Scribe_Values.LookValue(ref prefix, "prefix", InfusionPrefix.None);
+			Scribe_Values.LookValue(ref suffix, "suffix", InfusionSuffix.None);
 		}
 	    public override void PostSpawnSetup()
 	    {
@@ -78,6 +112,7 @@ namespace Infusion
 			if(!isInfused)
 				SetInfusion();
 
+			isInfused = true;
 			InfusionLabelManager.Register(this);
 	    }
 
@@ -94,23 +129,55 @@ namespace Infusion
 			if (compInfusion == null)
 				return false;
 
+		    InfusionPrefix infPrefix;
+		    other.TryGetInfusionPrefix(out infPrefix);
 			InfusionSuffix infSuffix;
-			other.TryGetInfusion(out infSuffix);
-			return infusion == infSuffix;
+			other.TryGetInfusionSuffix(out infSuffix);
+			return prefix == infPrefix && suffix == infSuffix;
 		}
 
 		public override string CompInspectStringExtra()
 		{
-			return Infusion == InfusionSuffix.None ? null : "Full name: " + parent.GetInfusedLabel();
+			if (prefix == InfusionPrefix.None && suffix == InfusionSuffix.None)
+				return null;
+
+			QualityCategory qc;
+			parent.TryGetQuality(out qc);
+			return "Full name: " + parent.GetInfusedLabel() + " (" + qc.GetLabel() + ")";
 		}
 
 	    public override string GetDescriptionPart()
 	    {
-		    if (Infusion == InfusionSuffix.None)
+		    var prePass = prefix == InfusionPrefix.None;
+		    var sufPass = suffix == InfusionSuffix.None;
+
+		    if (prePass && sufPass)
 			    return null;
-			var result = new StringBuilder();
-		    result.AppendLine("This weapon is infused with a power of " + Infusion.GetInfusionLabel() + ".");
-		    result.AppendLine(Infusion.GetInfusionDescription());
+
+			var result = new StringBuilder(null);
+		    result.AppendLine("This specific weapon has more potential than others.");
+		    result.AppendLine("Your colonists had named it " + parent.GetInfusedLabel());
+		    result.AppendLine();
+
+		    if (!prePass)
+		    {
+			    result.Append("This weapon is " + prefix.GetInfusionLabel() + ". ");
+			    result.AppendLine("It will grant user " + prefix.GetInfusionDescription());
+			}
+		    if (!prePass && !sufPass)
+		    {
+			    result.AppendLine();
+			    result.Append("Also, it is infused with power of ");
+		    }
+		    else if(!sufPass)
+			    result.Append("This weapon has power of ");
+
+		    if (!sufPass)
+		    {
+			    result.Append(suffix.GetInfusionLabel() + ". ");
+				result.AppendLine("It will add " + suffix.GetInfusionDescription());
+		    }
+
 		    return base.GetDescriptionPart() + result;
 	    }
     }

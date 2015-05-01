@@ -11,18 +11,18 @@
 		Charisma,		// Social+
 
 		Tier2,			//= Hack
-		Plain,			// MeleeCooldown+, PlantWorkSpeed++
+		Forest,			// MeleeCooldown+, PlantWorkSpeed++
 		Rock,			// MentalBreakThreshold++, PsychicSensitivity+, MeleeCooldown-, Social--, WorkSpeedGlobal-
 		Creation,		// WorkSpeedGlobal+
 		Stream,			// Attack-, MeleeCooldown+++, MeleeHitChance-
 		Salt,			// CookSpeed+, FoodPoisonChance+, ComfyTemperatureMin/Max+
 		
 		Tier3,			//= Hack
-		Sunlight,		// Attack++, MeleeHitChance++
+		Sunlight,		// Attack++, MeleeHitChance++, ImmunityGainSpeed+
 		Starlight,		// MeleeHitChance+, MeleeCooldown+++
 		Pain,			// Attack++++, PsychicSensitivity--, MentalBreakThreshold-, ImmunityGainSpeed--
 		Automaton,		// WorkSpeedGlobal++
-		Disassembling,	// ButcheryMechanoidSpeed++, ButcheryMechanoidEfficiency+
+		Disassembler,	// ButcheryMechanoidSpeed++, ButcheryMechanoidEfficiency+
 
 		End				//= Hack
 	}
@@ -32,23 +32,23 @@
 		None,			//0 None
 
 		Tier1,			//= Hack
-		Lightweight,	// MeleeCooldown+
+		Lightweight,	// Attack-, MeleeCooldown+
 		Heavyweight,	// Attack+, MeleeCooldown-
 
 		Tier2,			//= Hack
-		Hot,			// Attack+, ComfyTemperatureMin++, ComfyTemperatureMax-
-		Cold,			// Attack-, ComfyTemeratureMin/Max++
+		Hot,			// ComfyTemperatureMin++, ComfyTemperatureMax-
+		Cold,			// ComfyTemperatureMax++, ComfyTemperatureMin-
+		Compressed,		// MeleeCooldown++
 		Targeting,		// MeleeHitChance+
-		Intimidating,	// Damage+, Social-
+		Intimidating,	// Attack+, Social-
 		Decorated,		// Social+
-		Hardened,		// Attack+
-		Butchering,		// ButcherySpeed+, ButcheryEfficiency+
+		Slaughterous,	// ButcherySpeed+, ButcheryEfficiency+
 		Alcoholic,		// BrewingSpeed++, MeleeHitChance-
 
 		Tier3,			//= Hack
 		Telescoping,	// MeleeHitChance++, MeleeCooldown++
-		Mechanized,		// Attack+, MeleeCooldown+++, MeleeHitChance--
-		Compressed,		// MeleeCooldown++
+		Mechanized,		// Attack+, MeleeHitChance+, ConstructionSpeed+
+		Pneumatic,		// Attack+, MeleeCooldown+, MiningSpeed+, StonecuttingSpeed+
 		Charged,		// Attack++
 		Antiviral,		// ImmunityGainSpeed++
 		Holographic,	// Social+++, Attack--, MeleeHitChance-

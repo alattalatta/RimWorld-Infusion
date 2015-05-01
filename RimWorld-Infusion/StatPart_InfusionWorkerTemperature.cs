@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using RimWorld;
 using Verse;
 
@@ -7,24 +6,39 @@ namespace Infusion
 {
 	public class StatPart_InfusionWorkerTemperature : StatPart_InfusionWorker
 	{
-		
-		public override string ExplanationPart(StatRequest req)
+		protected override string WriteExplanation(StatRequest req, InfusionPrefix infPrefix, InfusionSuffix infSuffix)
 		{
-			if (req.Def != ThingDef.Named("Human"))
-				return null;
-			InfusionSuffix infSuffix;
-			var pawn = req.Thing as Pawn;
-			if (pawn == null)
-				return null;
-			if (!req.HasThing || !pawn.equipment.Primary.TryGetInfusion(out infSuffix))
-				return null;
-
 			var result = new StringBuilder();
 			result.AppendLine("Infusion bonuses");
-			if (StatModOf(infSuffix).offset != 0)
-				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort() + ": " + (StatModOf(infSuffix).offset > 0 ? "+" : "-") + StatModOf(infSuffix).offset.ToAbs().ToStringTemperatureOffset());
-			if (StatModOf(infSuffix).multiplier != 1)
-				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort() + ": x" + StatModOf(infSuffix).multiplier.ToStringPercent());
+
+			if (infPrefix != InfusionPrefix.None)
+			{
+				if (StatModOf(infPrefix).offset != 0)
+				{
+					result.Append("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": ");
+					result.AppendLine((StatModOf(infPrefix).offset > 0 ? "+" : "-") +
+									  StatModOf(infPrefix).offset.ToAbs().ToStringTemperatureOffset());
+				}
+				if (StatModOf(infPrefix).multiplier != 1)
+				{
+					result.AppendLine("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
+									  StatModOf(infPrefix).multiplier.ToStringPercent());
+				}
+			}
+			if (infSuffix != InfusionSuffix.None)
+			{
+				if (StatModOf(infSuffix).offset != 0)
+				{
+					result.Append("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": ");
+					result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
+									  StatModOf(infSuffix).offset.ToAbs().ToStringTemperatureOffset());
+				}
+				if (StatModOf(infSuffix).multiplier != 1)
+				{
+					result.AppendLine("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
+									  StatModOf(infSuffix).multiplier.ToStringPercent());
+				}
+			}
 			return result.ToString();
 		}
 	}

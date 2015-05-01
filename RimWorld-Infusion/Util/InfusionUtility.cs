@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -32,7 +33,19 @@ namespace Infusion
 			}
 		}
 
-		public static bool TryGetInfusion(this Thing thing, out InfusionSuffix infSuffix)
+		public static bool TryGetInfusionPrefix(this Thing thing, out InfusionPrefix infPrefix)
+		{
+			var compInfusion = thing.TryGetComp<CompInfusion>();
+			if (compInfusion == null)
+			{
+				infPrefix = InfusionPrefix.None;
+				return false;
+			}
+
+			infPrefix = compInfusion.Infusion.First;
+			return infPrefix != InfusionPrefix.None;
+		}
+		public static bool TryGetInfusionSuffix(this Thing thing, out InfusionSuffix infSuffix)
 		{
 			var compInfusion = thing.TryGetComp<CompInfusion>();
 			if (compInfusion == null)
@@ -41,39 +54,151 @@ namespace Infusion
 				return false;
 			}
 
-			infSuffix = compInfusion.Infusion;
+			infSuffix = compInfusion.Infusion.Second;
 			return infSuffix != InfusionSuffix.None;
 		}
 
 		public static string GetInfusedLabel(this Thing thing)
 		{
-			InfusionSuffix infSuffix;
-			if (!TryGetInfusion(thing, out infSuffix))
-				return null;
+			var result = new StringBuilder();
 
-			QualityCategory qc;
-			thing.TryGetQuality(out qc);
-			var result =
-				 thing.Stuff.stuffProps.stuffAdjective + " " + thing.def.label + " of " + GetInfusionLabel(infSuffix) + " (" + qc.GetLabel() + ")" ;
-			return result.CapitalizeFirst();
+			InfusionPrefix infPrefix;
+			if (TryGetInfusionPrefix(thing, out infPrefix))
+			{
+				result.Append(GetInfusionLabel(infPrefix) + " ");
+			}
+			result.Append(thing.Stuff.LabelAsStuff + " " + thing.def.label);
+
+			InfusionSuffix infSuffix;
+			if (TryGetInfusionSuffix(thing, out infSuffix))
+				result.Append(" of " + GetInfusionLabel(infSuffix));
+
+			return result.ToString().CapitalizeFirst();
 		}
 
 		public static string GetInfusedLabelShort(this Thing thing)
 		{
+			var result = new StringBuilder();
+
+			InfusionPrefix infPrefix;
+			if (TryGetInfusionPrefix(thing, out infPrefix))
+				result.Append(GetInfusionLabel(infPrefix) + " ");
+			result.Append(thing.def.label);
+
 			InfusionSuffix infSuffix;
-			if (!TryGetInfusion(thing, out infSuffix))
-				return null;
+			if (TryGetInfusionSuffix(thing, out infSuffix))
+				result.Append(" of " + GetInfusionLabel(infSuffix));
 
-			QualityCategory qc;
-			thing.TryGetQuality(out qc);
-			var result =
-				thing.def.label + " of " + GetInfusionLabel(infSuffix);
-			return result.CapitalizeFirst();
+			return result.ToString().CapitalizeFirst();
 		}
+		public static string GetInfusionLabelShort(this InfusionPrefix infPrefix)
+		{
+			switch (infPrefix)
+			{
+				case InfusionPrefix.Lightweight:
+					return "light";
+				case InfusionPrefix.Heavyweight:
+					return "heavy";
 
+				case InfusionPrefix.Compressed:
+					return "comp";
+				case InfusionPrefix.Targeting:
+					return "targ";
+				case InfusionPrefix.Intimidating:
+					return "inti";
+				case InfusionPrefix.Decorated:
+					return "deco";
+				case InfusionPrefix.Slaughterous:
+					return "slght";
+				case InfusionPrefix.Alcoholic:
+					return "alco";
+
+				case InfusionPrefix.Telescoping:
+					return "tele";
+				case InfusionPrefix.Mechanized:
+					return "mecha";
+				case InfusionPrefix.Pneumatic:
+					return "pneu";
+				case InfusionPrefix.Antiviral:
+					return "antiv";
+				case InfusionPrefix.Holographic:
+					return "holo";
+				case InfusionPrefix.Contaminated:
+					return "cont";
+
+				default:
+					return GetInfusionLabel(infPrefix);
+			}
+		}
+		public static string GetInfusionLabel(this InfusionPrefix infPrefix)
+		{
+			return infPrefix.ToString().ToLower();
+		}
+		public static string GetInfusionLabelShort(this InfusionSuffix infSuffix)
+		{
+			switch (infSuffix)
+			{
+				case InfusionSuffix.Charisma:
+					return "charm";
+				case InfusionSuffix.Creation:
+					return "creat";
+				case InfusionSuffix.Automaton:
+					return "auto";
+				case InfusionSuffix.Disassembler:
+					return "dassem";
+				default:
+					return GetInfusionLabel(infSuffix);
+			}
+		}
 		public static string GetInfusionLabel(this InfusionSuffix infSuffix)
 		{
 			return infSuffix.ToString().ToLower();
+		}
+
+		public static string GetInfusionDescription(this InfusionPrefix infPrefix)
+		{
+			switch (infPrefix)
+			{
+				case InfusionPrefix.Lightweight:
+					return "small bonus to cooldown but small penalty to damage.";
+				case InfusionPrefix.Heavyweight:
+					return "small bonus to damage but small penalty to cooldown.";
+
+				case InfusionPrefix.Hot:
+					return "bonus to minimum comfortable temperature but small penalty to maximum comfortable temperature.";
+				case InfusionPrefix.Cold:
+					return "bonus to maximum comfortable temperature but small penalty to minimum comfortable temperature.";
+				case InfusionPrefix.Compressed:
+					return "bonus to cooldown.";
+				case InfusionPrefix.Targeting:
+					return "small bonus to hit chance.";
+				case InfusionPrefix.Intimidating:
+					return "small bonus to damage but small penalty for social skills.";
+				case InfusionPrefix.Decorated:
+					return "small bonus to social skills.";
+				case InfusionPrefix.Slaughterous:
+					return "small bonus to butchery skills.";
+				case InfusionPrefix.Alcoholic:
+					return "bonus to brewing but small penalty to hit chance.";
+
+				case InfusionPrefix.Telescoping:
+					return "bonus to hit chance and cooldown.";
+				case InfusionPrefix.Mechanized:
+					return "small bonus to damage, hit chance and construction speed.";
+				case InfusionPrefix.Pneumatic:
+					return "small bonus to damage, hit chance, mining speed and stonecutting speed.";
+				case InfusionPrefix.Charged:
+					return "bonus to Attack.";
+				case InfusionPrefix.Antiviral:
+					return "bonus to immunity gain speed.";
+				case InfusionPrefix.Holographic:
+					return "big bonus to social but penalty to attack and small penalty to hit chance.";
+				case InfusionPrefix.Contaminated:
+					return "penalty to immunity gain speed.";
+
+				default:
+					throw new ArgumentOutOfRangeException(infPrefix.ToString());
+			}
 		}
 
 		public static string GetInfusionDescription(this InfusionSuffix infSuffix)
@@ -81,31 +206,37 @@ namespace Infusion
 			switch (infSuffix)
 			{
 				case InfusionSuffix.Shock:
-					return "Small bonus to damage and cooldown.";
+					return "small bonus to damage and cooldown.";
 				case InfusionSuffix.Impact:
-					return "Bonus to damage.";
+					return "bonus to damage.";
 				case InfusionSuffix.Needle:
-					return "Bonus to hit chance.\nSmall penalty to damage.";
+					return "bonus to hit chance but small penalty to damage.";
 				case InfusionSuffix.Charisma:
-					return "Small bonus to social skills.";
+					return "small bonus to social skills.";
 
-				case InfusionSuffix.Plain:
-					return "Bonus to sowing and harvesting. Small bonus to cooldown.";
+				case InfusionSuffix.Forest:
+					return "bonus to sowing and harvesting and small bonus to cooldown.";
 				case InfusionSuffix.Rock:
 					return
-						"Small bonus to mental break threshold and psychic sensitivity.\nPenalty to cooldown and social skills. Small penalty to global work speed.";
+						"small bonus to mental break threshold and psychic sensitivity but penalty to cooldown and social skills. Also small penalty to global work speed.";
 				case InfusionSuffix.Creation:
-					return "Small bonus to global work speed.";
+					return "small bonus to global work speed.";
 				case InfusionSuffix.Stream:
-					return "Big bonus to cooldown.\nPenalty to hit chance.";
+					return "big bonus to cooldown but small penalty to damage and hit chance.";
+				case InfusionSuffix.Salt:
+					return "small bonus to cooking speed, food poison chance and minimum/maximum temperature.";
 
 				case InfusionSuffix.Sunlight:
-					return "Bonus to attack and hit chance.";
+					return "bonus to damage, hit chance. Also small bonus to immunity gain speed.";
 				case InfusionSuffix.Starlight:
-					return "Bonus to cooldown. Small bonus to hit chance.";
+					return "bonus to cooldown and small bonus to hit chance.";
 				case InfusionSuffix.Pain:
 					return
-						"Huge bonus to damage.\nPenalty to psychic sensitivity. Small penalty to mental break threshold and immunity gain speed.";
+						"huge bonus to damage but penalty to psychic sensitivity. Also small penalty to mental break threshold and immunity gain speed.";
+				case InfusionSuffix.Automaton:
+					return "bonus to global work speed.";
+				case InfusionSuffix.Disassembler:
+					return "bonus to mechanoid disassembling speed and small bonus to efficiency.";
 
 				default:
 					throw new ArgumentOutOfRangeException(infSuffix.ToString());
@@ -116,6 +247,10 @@ namespace Infusion
 	public static class MathInfusion
 	{
 		public static int Rand(InfusionSuffix begin, InfusionSuffix end)
+		{
+			return Verse.Rand.Range((int)begin + 1, (int)end);
+		}
+		public static int Rand(InfusionPrefix begin, InfusionPrefix end)
 		{
 			return Verse.Rand.Range((int)begin + 1, (int)end);
 		}
