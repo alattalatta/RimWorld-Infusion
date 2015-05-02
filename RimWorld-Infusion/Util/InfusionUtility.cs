@@ -9,30 +9,12 @@ namespace Infusion
 {
 	public static class InfusionUtility
 	{
-		public static Dictionary<InfusionSuffix, Dictionary<StatDef, StatMod>> dictModifier;
-
-		public static void Init()
-		{
-			dictModifier = new Dictionary<InfusionSuffix, Dictionary<StatDef, StatMod>>();
-		}
-
-		public static void AddModifier(this InfusionSuffix infSuffix, StatDef statDef, StatMod statMod)
-		{
-			var dict = new Dictionary<StatDef, StatMod> {{statDef, statMod}};
-			dictModifier.Add(infSuffix, dict);
-		}
-
-		public static void GetModifier(this InfusionSuffix infSuffix, List<StatDef> statDef, out List<StatMod> statMod)
-		{
-			statMod = new List<StatMod>();
-
-			foreach (var current in statDef)
-			{
-				if(dictModifier[infSuffix].ContainsKey(current))
-					statMod.Add(dictModifier[infSuffix][current]);
-			}
-		}
-
+		/// <summary>
+		/// Set prefix enum parameter's value to the thing's prefix infusion if exists.
+		/// </summary>
+		/// <param name="thing">The thing to get infusion.</param>
+		/// <param name="infPrefix">The value to set infusion.</param>
+		/// <returns>True if exists, false if not.</returns>
 		public static bool TryGetInfusionPrefix(this Thing thing, out InfusionPrefix infPrefix)
 		{
 			var compInfusion = thing.TryGetComp<CompInfusion>();
@@ -45,6 +27,12 @@ namespace Infusion
 			infPrefix = compInfusion.Infusion.First;
 			return infPrefix != InfusionPrefix.None;
 		}
+		/// <summary>
+		/// Set suffix enum parameter's value to the thing's suffix infusion if exists.
+		/// </summary>
+		/// <param name="thing">The thing to get infusion.</param>
+		/// <param name="infSuffix">The value to set infusion.</param>
+		/// <returns>True if exists, false if not.</returns>
 		public static bool TryGetInfusionSuffix(this Thing thing, out InfusionSuffix infSuffix)
 		{
 			var compInfusion = thing.TryGetComp<CompInfusion>();

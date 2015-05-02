@@ -27,7 +27,7 @@ namespace Infusion
 		{
 			bool passPrefix = false, passSuffix = false;
 			QualityCategory qc;
-			if (!parent.TryGetQuality(out qc) || qc <= QualityCategory.Good)
+			if (!parent.TryGetQuality(out qc) || qc <= QualityCategory.Normal)
 			{
 				prefix = InfusionPrefix.None;
 				suffix = InfusionSuffix.None;
@@ -35,10 +35,11 @@ namespace Infusion
 			}
 
 			/** PrefixTable
-			 * Legendary	65
-			 * Masterwork	45
-			 * Excellent	25
-			 * Superior		05
+			 * Legendary	8 75
+			 * Masterwork	7 58
+			 * Excellent	6 41
+			 * Superior		5 24
+			 * Good			4 07
 			 */
 			var chance = (int)qc * 20 - 95;
 			var rand1 = Rand.Range(0, 100);
@@ -49,12 +50,13 @@ namespace Infusion
 			}
 
 			/**	SuffixTable
-			 * Legendary	80
-			 * Masterwork	65
-			 * Excellent	50
-			 * Superior		35
+			 * Legendary	8 95
+			 * Masterwork	7 72
+			 * Excellent	6 49
+			 * Superior		5 27
+			 * Good			4 05
 			 */
-			chance = (int) qc*15 - 40;
+			chance = (int) qc*23 - 89;
 			rand1 = Rand.Range(0, 100);
 			if (rand1 >= chance)
 			{

@@ -8,8 +8,8 @@ using Verse;
 namespace Infusion
 {
 	[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-	[SuppressMessage("ReSharper", "UnassignedField.Global")]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	[SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
 	public class StatPart_InfusionModifier : StatPart
 	{
 		#region StatMod variables
