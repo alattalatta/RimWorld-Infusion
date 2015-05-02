@@ -98,7 +98,7 @@ namespace Infusion
 			//For added hit points
 			parent.HitPoints = parent.MaxHitPoints;
 
-			MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), "Infused!", new Color(1f, 0.4f, 0f));
+			MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, new Color(1f, 0.4f, 0f));
 		}
 		public override void PostExposeData()
 		{
@@ -126,17 +126,11 @@ namespace Infusion
 	    }
 
 	    public override bool AllowStackWith(Thing other)
-		{
-			var compInfusion = other.TryGetComp<CompInfusion>();
-			if (compInfusion == null)
-				return false;
-
-		    InfusionPrefix infPrefix;
-		    other.TryGetInfusionPrefix(out infPrefix);
-			InfusionSuffix infSuffix;
-			other.TryGetInfusionSuffix(out infSuffix);
-			return prefix == infPrefix && suffix == infSuffix;
-		}
+	    {
+			//Same weapon, same stuff, same pre&suffix? Not possible
+			//Weapons are not stackable anyway
+		    return false;
+	    }
 
 		public override string CompInspectStringExtra()
 		{
@@ -145,7 +139,7 @@ namespace Infusion
 
 			QualityCategory qc;
 			parent.TryGetQuality(out qc);
-			return "Full name: " + parent.GetInfusedLabel() + " (" + qc.GetLabel() + ")";
+			return StaticSet.StringInfusionFullName + parent.GetInfusedLabel() + " (" + qc.GetLabel() + ")";
 		}
 
 	    public override string GetDescriptionPart()
@@ -157,28 +151,24 @@ namespace Infusion
 			    return null;
 
 			var result = new StringBuilder(null);
-		    result.AppendLine("This specific weapon has more potential than others.");
-		    result.AppendLine("Your colonists had named it " + parent.GetInfusedLabel());
+		    result.AppendLine(StaticSet.StringInfusionInfo.Translate(parent.GetInfusedLabel()));
 		    result.AppendLine();
 
 		    if (!prePass)
 		    {
-			    result.Append("This weapon is " + prefix.GetInfusionLabel() + ". ");
-			    result.AppendLine("It will grant user " + prefix.GetInfusionDescription());
+				result.Append(StaticSet.StringInfusionInfoPrefix.Translate(prefix.GetInfusionLabel()));
+			    result.AppendLine(StaticSet.StringInfusionInfoPrefixBonus.Translate(prefix.GetInfusionDescription()));
 			}
 		    if (!prePass && !sufPass)
 		    {
 			    result.AppendLine();
-			    result.Append("Also, it is infused with power of ");
+			    result.Append(StaticSet.StringInfusionInfoPreSuffix.Translate(suffix.GetInfusionLabel()));
 		    }
 		    else if(!sufPass)
-			    result.Append("This weapon has power of ");
+			    result.Append(StaticSet.StringInfusionInfoSuffix.Translate(suffix.GetInfusionLabel()));
 
 		    if (!sufPass)
-		    {
-			    result.Append(suffix.GetInfusionLabel() + ". ");
-				result.AppendLine("It will add " + suffix.GetInfusionDescription());
-		    }
+				result.AppendLine(StaticSet.StringInfusionInfoSuffixBonus.Translate(suffix.GetInfusionDescription()));
 
 		    return base.GetDescriptionPart() + result;
 	    }

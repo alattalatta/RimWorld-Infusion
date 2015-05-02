@@ -62,7 +62,7 @@ namespace Infusion
 				return null;
 
 			var result = new StringBuilder();
-			result.AppendLine("Infusion bonuses");
+			result.AppendLine(StaticSet.StringInfusionDescBonus);
 
 			if (infPrefix != InfusionPrefix.None)
 			{
