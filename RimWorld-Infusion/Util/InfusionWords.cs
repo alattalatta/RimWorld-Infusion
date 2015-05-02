@@ -34,6 +34,7 @@
 		Tier1,			//= Hack
 		Lightweight,	// Attack-, MeleeCooldown+
 		Heavyweight,	// Attack+, MeleeCooldown-
+		Hardened,
 
 		Tier2,			//= Hack
 		Hot,			// ComfyTemperatureMin++, ComfyTemperatureMax-

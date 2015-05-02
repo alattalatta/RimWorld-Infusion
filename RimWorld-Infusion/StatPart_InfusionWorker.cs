@@ -25,15 +25,11 @@ namespace Infusion
 				if(StatModOf(infPrefix).multiplier != 0)
 					val *= StatModOf(infPrefix).multiplier;
 			}
-			if (pawn.equipment.Primary.TryGetInfusionSuffix(out infSuffix))
-			{
-				val += StatModOf(infSuffix).offset;
-				if (StatModOf(infSuffix).multiplier != 0)
-					val *= StatModOf(infSuffix).multiplier;
-			}
-			if (infSuffix == InfusionSuffix.None) return;
-			
-			val *= StatModOf(infSuffix).multiplier;
+			if (!pawn.equipment.Primary.TryGetInfusionSuffix(out infSuffix)) return;
+
+			val += StatModOf(infSuffix).offset;
+			if (StatModOf(infSuffix).multiplier != 0)
+				val *= StatModOf(infSuffix).multiplier;
 		}
 		public override string ExplanationPart(StatRequest req)
 		{
@@ -78,19 +74,18 @@ namespace Infusion
 									  StatModOf(infPrefix).multiplier.ToStringPercent());
 				}
 			}
-			if (infSuffix != InfusionSuffix.None)
+			if (infSuffix == InfusionSuffix.None) return result.ToString();
+
+			if (StatModOf(infSuffix).offset != 0)
 			{
-				if (StatModOf(infSuffix).offset != 0)
-				{
-					result.Append("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": ");
-					result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
-									  StatModOf(infSuffix).offset.ToAbs().ToStringPercent());
-				}
-				if (StatModOf(infSuffix).multiplier != 1)
-				{
-					result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
-									  StatModOf(infSuffix).multiplier.ToStringPercent());
-				}
+				result.Append("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": ");
+				result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
+				                  StatModOf(infSuffix).offset.ToAbs().ToStringPercent());
+			}
+			if (StatModOf(infSuffix).multiplier != 1)
+			{
+				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
+				                  StatModOf(infSuffix).multiplier.ToStringPercent());
 			}
 			return result.ToString();
 		}

@@ -23,7 +23,7 @@ namespace Infusion
 		    }
 	    }
 
-		public void SetInfusion()
+		public bool SetInfusion()
 		{
 			bool passPrefix = false, passSuffix = false;
 			QualityCategory qc;
@@ -31,7 +31,7 @@ namespace Infusion
 			{
 				prefix = InfusionPrefix.None;
 				suffix = InfusionSuffix.None;
-				return;
+				return false;
 			}
 
 			/** PrefixTable
@@ -74,7 +74,7 @@ namespace Infusion
 			}
 
 			if (passPrefix && passSuffix)
-				return;
+				return false;
 
 			/**		Table
 			 * Tier 1		50
@@ -108,6 +108,7 @@ namespace Infusion
 			parent.HitPoints = parent.MaxHitPoints;
 
 			MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, new Color(1f, 0.4f, 0f));
+			return true;
 		}
 		public override void PostExposeData()
 		{

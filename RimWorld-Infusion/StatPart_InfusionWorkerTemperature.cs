@@ -25,19 +25,18 @@ namespace Infusion
 									  StatModOf(infPrefix).multiplier.ToStringPercent());
 				}
 			}
-			if (infSuffix != InfusionSuffix.None)
+			if (infSuffix == InfusionSuffix.None) return result.ToString();
+
+			if (StatModOf(infSuffix).offset != 0)
 			{
-				if (StatModOf(infSuffix).offset != 0)
-				{
-					result.Append("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": ");
-					result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
-									  StatModOf(infSuffix).offset.ToAbs().ToStringTemperatureOffset());
-				}
-				if (StatModOf(infSuffix).multiplier != 1)
-				{
-					result.AppendLine("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
-									  StatModOf(infSuffix).multiplier.ToStringPercent());
-				}
+				result.Append("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": ");
+				result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
+				                  StatModOf(infSuffix).offset.ToAbs().ToStringTemperatureOffset());
+			}
+			if (StatModOf(infSuffix).multiplier != 1)
+			{
+				result.AppendLine("    " + req.Thing.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
+				                  StatModOf(infSuffix).multiplier.ToStringPercent());
 			}
 			return result.ToString();
 		}

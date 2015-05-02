@@ -16,6 +16,7 @@ namespace Infusion
 		/* Prefixes */
 		protected StatMod lightweight = new StatMod();
 		protected StatMod heavyweight = new StatMod();
+		protected StatMod hardened = new StatMod();
 
 		protected StatMod hot = new StatMod();
 		protected StatMod cold = new StatMod();
@@ -62,15 +63,16 @@ namespace Infusion
 			if (req.Thing.TryGetInfusionPrefix(out infPrefix))
 			{
 				val += StatModOf(infPrefix).offset;
-				val *= StatModOf(infPrefix).multiplier;
+				if(StatModOf(infPrefix).multiplier != 0)
+					val *= StatModOf(infPrefix).multiplier;
 			}
 
 			InfusionSuffix infSuffix;
-			if (req.Thing.TryGetInfusionSuffix(out infSuffix))
-			{
-				val += StatModOf(infSuffix).offset;
+			if (!req.Thing.TryGetInfusionSuffix(out infSuffix)) return;
+
+			val += StatModOf(infSuffix).offset;
+			if (StatModOf(infSuffix).multiplier != 0)
 				val *= StatModOf(infSuffix).multiplier;
-			}
 		}
 		public override string ExplanationPart(StatRequest req)
 		{
@@ -133,6 +135,8 @@ namespace Infusion
 					return lightweight;
 				case InfusionPrefix.Heavyweight:
 					return heavyweight;
+				case InfusionPrefix.Hardened:
+					return hardened;
 
 				case InfusionPrefix.Hot:
 					return hot;
