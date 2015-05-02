@@ -5,24 +5,25 @@
 		None,			// None
 
 		Tier1,			//= Hack
-		Shock,			// MeleeCooldown+
+		Shock,			// Cooldown+
 		Impact,			// Attack+
-		Needle,			// Attack-, MeleeHitChance+, MeleeCooldown+
+		Needle,			// Attack-, Accuracy+, Cooldown+
 		Charisma,		// Social+
 
 		Tier2,			//= Hack
-		Forest,			// MeleeCooldown+, PlantWorkSpeed++
-		Rock,			// MentalBreakThreshold++, PsychicSensitivity+, MeleeCooldown-, Social--, WorkSpeedGlobal-
+		Forest,			// Cooldown+, PlantWorkSpeed++
+		Rock,			// MentalBreakThreshold++, PsychicSensitivity+, Cooldown-, Social--, WorkSpeedGlobal-
 		Creation,		// WorkSpeedGlobal+
-		Stream,			// Attack-, MeleeCooldown+++, MeleeHitChance-
+		Stream,			// Attack-, Cooldown+++, Accuracy-
 		Salt,			// CookSpeed+, FoodPoisonChance+, ComfyTemperatureMin/Max+
 		
 		Tier3,			//= Hack
-		Sunlight,		// Attack++, MeleeHitChance++, ImmunityGainSpeed+
-		Starlight,		// MeleeHitChance+, MeleeCooldown+++
+		Sunlight,		// Attack++, Accuracy++, ImmunityGainSpeed+
+		Starlight,		// Accuracy+, Cooldown+++
 		Pain,			// Attack++++, PsychicSensitivity--, MentalBreakThreshold-, ImmunityGainSpeed--
 		Automaton,		// WorkSpeedGlobal++
 		Disassembler,	// ButcheryMechanoidSpeed++, ButcheryMechanoidEfficiency+
+		Exhaust,		// MoveSpeed--
 
 		End				//= Hack
 	}
@@ -32,27 +33,28 @@
 		None,			//0 None
 
 		Tier1,			//= Hack
-		Lightweight,	// Attack-, MeleeCooldown+
-		Heavyweight,	// Attack+, MeleeCooldown-
-		Hardened,
+		Lightweight,	// Attack--, Cooldown+, MoveSpeed+
+		Heavyweight,	// Attack+, Cooldown-, Hitpoints+, 
+		Hardened,		// Hitpoints+, DeteriorationRate+
 
 		Tier2,			//= Hack
 		Hot,			// ComfyTemperatureMin++, ComfyTemperatureMax-
 		Cold,			// ComfyTemperatureMax++, ComfyTemperatureMin-
-		Compressed,		// MeleeCooldown++
-		Targeting,		// MeleeHitChance+
+		Compressed,		// Cooldown++
+		Targeting,		// Accuracy+
 		Intimidating,	// Attack+, Social-
 		Decorated,		// Social+
 		Slaughterous,	// ButcherySpeed+, ButcheryEfficiency+
-		Alcoholic,		// BrewingSpeed++, MeleeHitChance-
+		Alcoholic,		// BrewingSpeed++, Accuracy-
 
 		Tier3,			//= Hack
-		Telescoping,	// MeleeHitChance++, MeleeCooldown++
-		Mechanized,		// Attack+, MeleeHitChance+, ConstructionSpeed+
-		Pneumatic,		// Attack+, MeleeCooldown+, MiningSpeed+, StonecuttingSpeed+
+		Telescoping,	// Accuracy++, Cooldown++
+		Mechanized,		// Attack+, Accuracy+, ConstructionSpeed+
+		Pneumatic,		// Attack+, Cooldown+, MiningSpeed+, StonecuttingSpeed+
 		Charged,		// Attack++
 		Antiviral,		// ImmunityGainSpeed++
-		Holographic,	// Social+++, Attack--, MeleeHitChance-
+		Holographic,	// Social+++, Attack---, Accuracy-
+		Gravitational,	// MoveSpeed++
 		Contaminated,	// ImmunityGainSpeed--
 
 		End				//= Hack

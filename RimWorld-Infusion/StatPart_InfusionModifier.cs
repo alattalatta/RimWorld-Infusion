@@ -33,6 +33,7 @@ namespace Infusion
 		protected StatMod charged = new StatMod();
 		protected StatMod antiviral = new StatMod();
 		protected StatMod holographic = new StatMod();
+		protected StatMod gravitational = new StatMod();
 		protected StatMod contaminated = new StatMod();
 
 		/* Suffixes */
@@ -52,6 +53,7 @@ namespace Infusion
 		protected StatMod pain = new StatMod();
 		protected StatMod automaton = new StatMod();
 		protected StatMod disassembler = new StatMod();
+		protected StatMod exhaust = new StatMod();
 		#endregion //StatMods
 
 		public override void TransformValue(StatRequest req, ref float val)
@@ -167,6 +169,8 @@ namespace Infusion
 					return antiviral;
 				case InfusionPrefix.Holographic:
 					return holographic;
+				case InfusionPrefix.Gravitational:
+					return gravitational;
 				case InfusionPrefix.Contaminated:
 					return contaminated;
 
@@ -208,6 +212,8 @@ namespace Infusion
 					return automaton;
 				case InfusionSuffix.Disassembler:
 					return disassembler;
+				case InfusionSuffix.Exhaust:
+					return exhaust;
 
 				default:
 					throw new ArgumentOutOfRangeException();

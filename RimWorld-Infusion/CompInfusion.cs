@@ -46,9 +46,9 @@ namespace Infusion
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.75f;
 
-			var rand1 = Rand.Range(0, 100);
+			var rand = Rand.Range(0, 100);
 
-			if (rand1 >= chance)
+			if (rand >= chance)
 			{
 				prefix = InfusionPrefix.None;
 				passPrefix = true;
@@ -66,8 +66,8 @@ namespace Infusion
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.75f;
 
-			rand1 = Rand.Range(0, 100);
-			if (rand1 >= chance)
+			rand = Rand.Range(0, 100);
+			if (rand >= chance)
 			{
 				suffix = InfusionSuffix.None;
 				passSuffix = true;
@@ -76,33 +76,40 @@ namespace Infusion
 			if (passPrefix && passSuffix)
 				return false;
 
-			/**		Table
+			if (!passPrefix)
+			{
+				/** PrefixTable
+				 * Tier 1		45
+				 * Tier 2		32
+				 * Tier 3		23
+				 */
+				rand = Rand.Range(0, 100);
+				if (rand >= 55)
+					rand = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
+				else if (rand >= 23)
+					rand = MathInfusion.Rand(InfusionPrefix.Tier2, InfusionPrefix.Tier3);
+				else
+					rand = MathInfusion.Rand(InfusionPrefix.Tier3, InfusionPrefix.End);
+
+				prefix = (InfusionPrefix)rand;
+			}
+
+			if (!passSuffix) { 
+			/** SuffixTable
 			 * Tier 1		50
 			 * Tier 2		38
 			 * Tier 3		12
 			 */
-			int rand2;
-			rand1 = Rand.Range(0, 100);
-			if (rand1 >= 50)
-			{
-				rand1 = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
-				rand2 = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
-			}
-			else if (rand1 >= 38)
-			{
-				rand1 = MathInfusion.Rand(InfusionPrefix.Tier2, InfusionPrefix.Tier3);
-				rand2 = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
-			}
+			rand = Rand.Range(0, 100);
+			if (rand >= 50)
+				rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
+			else if (rand >= 12)
+				rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
 			else
-			{
-				rand1 = MathInfusion.Rand(InfusionPrefix.Tier3, InfusionPrefix.End);
-				rand2 = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
-			}
+				rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
 
-			if(!passPrefix)
-				prefix = (InfusionPrefix) rand1;
-			if(!passSuffix)
-				suffix = (InfusionSuffix) rand2;
+			suffix = (InfusionSuffix)rand;
+			}
 
 			//For added hit points
 			parent.HitPoints = parent.MaxHitPoints;
