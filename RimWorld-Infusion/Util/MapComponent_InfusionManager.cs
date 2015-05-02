@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -6,7 +7,7 @@ namespace Infusion
 {
 	class MapComponent_InfusionManager : MapComponent
 	{
-		private int lastTick = 0;
+		private int lastTick;
 		public override void MapComponentTick()
 		{
 			//Execute every 5 ticks
@@ -30,9 +31,7 @@ namespace Infusion
 			{
 				if (current.IsTried)
 					continue;
-				Log.Message(current.parent + " Found. Trying.");
-				if (current.SetInfusion())
-					Log.Message("Infused!");
+				current.SetInfusion();
 			}
 		}
 

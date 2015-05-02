@@ -6,7 +6,7 @@
 
 		Tier1,			//= Hack
 		Lightweight,	// Attack--, Cooldown+, MoveSpeed+
-		Heavyweight,	// Attack+, Cooldown-, Hitpoints+, 
+		Heavyweight,	// Attack+, Cooldown-, Hitpoints+, MoveSpeed-
 		Hardened,		// Hitpoints+, DeteriorationRate+
 
 		Tier2,			//= Hack

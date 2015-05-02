@@ -28,7 +28,8 @@ namespace Infusion
 				Log.Error(ModName + " : Error Initializing mod");
 				Log.Error(ex.ToString());
 			}
-		} /*
+		}
+		/*
 		public void Update()
 		{
 			if (isDone) return;
@@ -79,35 +80,31 @@ namespace Infusion
 			if (defsList == null)
 			{
 				Log.Error(ModName + " : field == null");
+				return;
 			}
 			if (defsByName == null)
 			{
 				Log.Error(ModName + " : field2 == null");
+				return;
 			}
-			if (defsList != null)
+			var value = defsList.GetValue(null);
+			var list = value as List<ThingDef>;
+			var value2 = defsByName.GetValue(null);
+			var dictionary = value2 as Dictionary<string, ThingDef>;
+			if (list == null || dictionary == null)
 			{
-				var value = defsList.GetValue(null);
-				var list = value as List<ThingDef>;
-				if (defsByName != null)
-				{
-					var value2 = defsByName.GetValue(null);
-					var dictionary = value2 as Dictionary<string, ThingDef>;
-					if (list == null || dictionary == null)
-					{
-						throw new Exception(ModName + ": Could not access private members");
-					}
-					foreach (KeyValuePair<string, ThingDef> cur in dictionary)
-					{
-						if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon)
-						{
-							continue;
-						}
-
-						AddComp(cur.Value, typeof(CompInfusion));
-					}
-				}
+				throw new Exception(ModName + ": Could not access private members");
 			}
-			Log.Message(ModName + ": Initialized");
+			foreach (KeyValuePair<string, ThingDef> cur in dictionary)
+			{
+				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon)
+				{
+					continue;
+				}
+
+				AddComp(cur.Value, typeof(CompInfusion));
+			}
+			Log.Message("Initialized " + ModName);
 		}
 		private static void AddComp(ThingDef def, Type compToAdd)
 		{

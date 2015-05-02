@@ -33,19 +33,24 @@ namespace Infusion
 		{
 			if (isTried)
 				return false;
-			bool passPrefix = false, passSuffix = false;
 			var compQuality = parent.GetComp<CompQuality>();
 			if (compQuality == null)
-				return false;
-
-			var qc = compQuality.Quality;
-			if (qc <= QualityCategory.Normal)
 			{
-				prefix = InfusionPrefix.None;
-				suffix = InfusionSuffix.None;
-				isTried = true;
 				return false;
 			}
+
+			var qc = compQuality.Quality;
+			if (qc > QualityCategory.Normal) return GenerateInfusion(qc);
+
+			prefix = InfusionPrefix.None;
+			suffix = InfusionSuffix.None;
+			isTried = true;
+			return false;
+		}
+
+	    private bool GenerateInfusion(QualityCategory qc)
+		{
+			bool passPrefix = false, passSuffix = false;
 
 			/** PrefixTable
 			 * Legendary	8 75
@@ -110,7 +115,8 @@ namespace Infusion
 				prefix = (InfusionPrefix)rand;
 			}
 
-			if (!passSuffix) { 
+			if (!passSuffix)
+			{
 				/** SuffixTable
 				 * Tier 1		50
 				 * Tier 2		38
@@ -134,7 +140,7 @@ namespace Infusion
 			isTried = true;
 			isInfused = true;
 			return true;
-		}
+	    }
 
 	    public override void PostSpawnSetup()
 	    {
