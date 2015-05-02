@@ -54,7 +54,8 @@ namespace Infusion
 			if (TryGetInfusionPrefix(thing, out infPrefix))
 				result.Append(GetInfusionLabel(infPrefix) + " ");
 
-			result.Append(thing.Stuff.LabelAsStuff + " ");
+			if(thing.Stuff != null)
+				result.Append(thing.Stuff.LabelAsStuff + " ");
 
 			InfusionSuffix infSuffix;
 			result.Append(TryGetInfusionSuffix(thing, out infSuffix)
