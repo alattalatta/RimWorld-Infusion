@@ -98,7 +98,7 @@ namespace Infusion
 					}
 					foreach (KeyValuePair<string, ThingDef> cur in dictionary)
 					{
-						if (!cur.Value.IsMeleeWeapon)
+						if (!cur.Value.IsMeleeWeapon || !cur.Value.IsRangedWeapon)
 						{
 							continue;
 						}

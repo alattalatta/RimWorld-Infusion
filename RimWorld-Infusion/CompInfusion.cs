@@ -41,8 +41,13 @@ namespace Infusion
 			 * Superior		5 24
 			 * Good			4 07
 			 */
-			var chance = (int)qc * 20 - 95;
+			float chance = (int)qc * 20 - 95;
+			//Lower chance with ranged weapons
+			if (parent.def.IsRangedWeapon)
+				chance *= 0.75f;
+
 			var rand1 = Rand.Range(0, 100);
+
 			if (rand1 >= chance)
 			{
 				prefix = InfusionPrefix.None;
@@ -56,7 +61,11 @@ namespace Infusion
 			 * Superior		5 27
 			 * Good			4 05
 			 */
-			chance = (int) qc*23 - 89;
+			chance = (int)qc * 23 - 89;
+			//Lower chance with ranged weapons
+			if (parent.def.IsRangedWeapon)
+				chance *= 0.75f;
+
 			rand1 = Rand.Range(0, 100);
 			if (rand1 >= chance)
 			{
@@ -79,7 +88,7 @@ namespace Infusion
 				rand1 = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
 				rand2 = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
 			}
-			else if (rand1 >= 10)
+			else if (rand1 >= 38)
 			{
 				rand1 = MathInfusion.Rand(InfusionPrefix.Tier2, InfusionPrefix.Tier3);
 				rand2 = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
@@ -139,7 +148,7 @@ namespace Infusion
 
 			QualityCategory qc;
 			parent.TryGetQuality(out qc);
-			return StaticSet.StringInfusionFullName + parent.GetInfusedLabel() + " (" + qc.GetLabel() + ")";
+			return StaticSet.StringInfusionFullName + ": " + parent.GetInfusedLabel() + " (" + qc.GetLabel() + ")";
 		}
 
 	    public override string GetDescriptionPart()
@@ -156,16 +165,16 @@ namespace Infusion
 
 		    if (!prePass)
 		    {
-				result.Append(StaticSet.StringInfusionInfoPrefix.Translate(prefix.GetInfusionLabel()));
+				result.Append(StaticSet.StringInfusionInfoPrefix.Translate(prefix.GetInfusionLabel()) + " ");
 			    result.AppendLine(StaticSet.StringInfusionInfoPrefixBonus.Translate(prefix.GetInfusionDescription()));
 			}
 		    if (!prePass && !sufPass)
 		    {
 			    result.AppendLine();
-			    result.Append(StaticSet.StringInfusionInfoPreSuffix.Translate(suffix.GetInfusionLabel()));
+			    result.Append(StaticSet.StringInfusionInfoPreSuffix.Translate(suffix.GetInfusionLabel()) + " ");
 		    }
 		    else if(!sufPass)
-			    result.Append(StaticSet.StringInfusionInfoSuffix.Translate(suffix.GetInfusionLabel()));
+			    result.Append(StaticSet.StringInfusionInfoSuffix.Translate(suffix.GetInfusionLabel()) + " ");
 
 		    if (!sufPass)
 				result.AppendLine(StaticSet.StringInfusionInfoSuffixBonus.Translate(suffix.GetInfusionDescription()));
