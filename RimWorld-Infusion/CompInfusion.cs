@@ -62,7 +62,7 @@ namespace Infusion
 			float chance = (int)qc * 20 - 95;
 			//Lower chance with ranged weapons
 			if (parent.def.IsRangedWeapon)
-				chance *= 0.75f;
+				chance *= 0.88f;
 
 			var rand = Rand.Range(0, 100);
 
@@ -82,7 +82,7 @@ namespace Infusion
 			chance = (int)qc * 23 - 89;
 			//Lower chance with ranged weapons
 			if (parent.def.IsRangedWeapon)
-				chance *= 0.75f;
+				chance *= 0.70f;
 
 			rand = Rand.Range(0, 100);
 			if (rand >= chance)

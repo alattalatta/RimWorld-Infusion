@@ -54,12 +54,15 @@ namespace Infusion
 			if (TryGetInfusionPrefix(thing, out infPrefix))
 				result.Append(GetInfusionLabel(infPrefix) + " ");
 
-			if(thing.Stuff != null)
-				result.Append(thing.Stuff.LabelAsStuff + " ");
+			string label;
+			if (thing.Stuff != null)
+				label = thing.Stuff.LabelAsStuff + " " + thing.def.label;
+			else
+				label = thing.def.label;
 
 			InfusionSuffix infSuffix;
 			result.Append(TryGetInfusionSuffix(thing, out infSuffix)
-				? StaticSet.StringInfusionInfusedLabelSuffix.Translate(thing.def.label, GetInfusionLabel(infSuffix))
+				? StaticSet.StringInfusionInfusedLabelSuffix.Translate(label, GetInfusionLabel(infSuffix))
 				: thing.def.label);
 
 			return result.ToString().CapitalizeFirst();
