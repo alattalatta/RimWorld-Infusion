@@ -7,7 +7,13 @@ namespace Infusion
 {
     public class CompInfusion : ThingComp
     {
-		private bool isInfused;
+	    public bool IsTried
+	    {
+		    get { return isTried; }
+	    }
+
+	    private bool isTried;
+	    private bool isInfused;
 		private InfusionPrefix prefix;
 	    private InfusionSuffix suffix;
 
@@ -25,12 +31,19 @@ namespace Infusion
 
 		public bool SetInfusion()
 		{
+			if (isTried)
+				return false;
 			bool passPrefix = false, passSuffix = false;
-			QualityCategory qc;
-			if (!parent.TryGetQuality(out qc) || qc <= QualityCategory.Normal)
+			var compQuality = parent.GetComp<CompQuality>();
+			if (compQuality == null)
+				return false;
+
+			var qc = compQuality.Quality;
+			if (qc <= QualityCategory.Normal)
 			{
 				prefix = InfusionPrefix.None;
 				suffix = InfusionSuffix.None;
+				isTried = true;
 				return false;
 			}
 
@@ -74,7 +87,10 @@ namespace Infusion
 			}
 
 			if (passPrefix && passSuffix)
+			{
+				isTried = true;
 				return false;
+			}
 
 			if (!passPrefix)
 			{
@@ -95,49 +111,53 @@ namespace Infusion
 			}
 
 			if (!passSuffix) { 
-			/** SuffixTable
-			 * Tier 1		50
-			 * Tier 2		38
-			 * Tier 3		12
-			 */
-			rand = Rand.Range(0, 100);
-			if (rand >= 50)
-				rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
-			else if (rand >= 12)
-				rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
-			else
-				rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
+				/** SuffixTable
+				 * Tier 1		50
+				 * Tier 2		38
+				 * Tier 3		12
+				 */
+				rand = Rand.Range(0, 100);
+				if (rand >= 50)
+					rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
+				else if (rand >= 12)
+					rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
+				else
+					rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
 
-			suffix = (InfusionSuffix)rand;
+				suffix = (InfusionSuffix)rand;
 			}
 
 			//For added hit points
 			parent.HitPoints = parent.MaxHitPoints;
 
 			MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, new Color(1f, 0.4f, 0f));
+			isTried = true;
+			isInfused = true;
 			return true;
 		}
-		public override void PostExposeData()
-		{
-			base.PostExposeData();
-			Scribe_Values.LookValue(ref isInfused, "isInfused", false);
-			Scribe_Values.LookValue(ref prefix, "prefix", InfusionPrefix.None);
-			Scribe_Values.LookValue(ref suffix, "suffix", InfusionSuffix.None);
-		}
+
 	    public override void PostSpawnSetup()
 	    {
 		    base.PostSpawnSetup();
+		    SetInfusion();
 
-			if(!isInfused)
-				SetInfusion();
+		    if (isInfused)
+			    InfusionLabelManager.Register(this);
+	    }
 
-			isInfused = true;
-			InfusionLabelManager.Register(this);
+	    public override void PostExposeData()
+	    {
+		    base.PostExposeData();
+			Scribe_Values.LookValue(ref isTried, "isTried", true);
+		    Scribe_Values.LookValue(ref isInfused, "isInfused", false);
+		    Scribe_Values.LookValue(ref prefix, "prefix", InfusionPrefix.None);
+		    Scribe_Values.LookValue(ref suffix, "suffix", InfusionSuffix.None);
 	    }
 
 	    public override void PostDeSpawn()
 	    {
 		    base.PostDeSpawn();
+
 			if(isInfused)
 				InfusionLabelManager.DeRegister(this);
 	    }

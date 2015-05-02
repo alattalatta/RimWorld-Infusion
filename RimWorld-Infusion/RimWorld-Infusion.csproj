@@ -51,7 +51,7 @@
     <Compile Include="Util\InfusionLabelManager.cs" />
     <Compile Include="Util\InfusionWords.cs" />
     <Compile Include="Util\InfusionUtility.cs" />
-    <Compile Include="Util\MapComponent_LabelDrawer.cs" />
+    <Compile Include="Util\MapComponent_InfusionManager.cs" />
     <Compile Include="Util\Initializer\InitComponent.cs" />
     <Compile Include="Util\Initializer\Initializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

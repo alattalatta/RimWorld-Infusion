@@ -1,33 +1,5 @@
 ﻿namespace Infusion
 {
-	public enum InfusionSuffix
-	{
-		None,			// None
-
-		Tier1,			//= Hack
-		Shock,			// Cooldown+
-		Impact,			// Attack+
-		Needle,			// Attack-, Accuracy+, Cooldown+
-		Charisma,		// Social+
-
-		Tier2,			//= Hack
-		Forest,			// Cooldown+, PlantWorkSpeed++
-		Rock,			// MentalBreakThreshold++, PsychicSensitivity+, Cooldown-, Social--, WorkSpeedGlobal-
-		Creation,		// WorkSpeedGlobal+
-		Stream,			// Attack-, Cooldown+++, Accuracy-
-		Salt,			// CookSpeed+, FoodPoisonChance+, ComfyTemperatureMin/Max+
-		
-		Tier3,			//= Hack
-		Sunlight,		// Attack++, Accuracy++, ImmunityGainSpeed+
-		Starlight,		// Accuracy+, Cooldown+++
-		Pain,			// Attack++++, PsychicSensitivity--, MentalBreakThreshold-, ImmunityGainSpeed--
-		Automaton,		// WorkSpeedGlobal++
-		Disassembler,	// ButcheryMechanoidSpeed++, ButcheryMechanoidEfficiency+
-		Exhaust,		// MoveSpeed--
-
-		End				//= Hack
-	}
-
 	public enum InfusionPrefix
 	{
 		None,			//0 None
@@ -56,6 +28,34 @@
 		Holographic,	// Social+++, Attack---, Accuracy-
 		Gravitational,	// MoveSpeed++
 		Contaminated,	// ImmunityGainSpeed--
+
+		End				//= Hack
+	}
+
+	public enum InfusionSuffix
+	{
+		None,			// None
+
+		Tier1,			//= Hack
+		Shock,			// Cooldown+
+		Impact,			// Attack+
+		Needle,			// Attack-, Accuracy+, Cooldown+
+		Charisma,		// Social+
+
+		Tier2,			//= Hack
+		Forest,			// Cooldown+, PlantWorkSpeed++
+		Rock,			// MentalBreakThreshold++, PsychicSensitivity+, Cooldown-, Social--, WorkSpeedGlobal-
+		Creation,		// WorkSpeedGlobal+
+		Stream,			// Attack-, Cooldown+++, Accuracy-
+		Salt,			// CookSpeed+, FoodPoisonChance+, ComfyTemperatureMin/Max+
+		
+		Tier3,			//= Hack
+		Sunlight,		// Attack++, Accuracy++, ImmunityGainSpeed+
+		Starlight,		// Accuracy+, Cooldown+++
+		Pain,			// Attack++++, PsychicSensitivity--, MentalBreakThreshold-, ImmunityGainSpeed--
+		Automaton,		// WorkSpeedGlobal++
+		Disassembler,	// ButcheryMechanoidSpeed++, ButcheryMechanoidEfficiency+
+		Exhaust,		// MoveSpeed--
 
 		End				//= Hack
 	}

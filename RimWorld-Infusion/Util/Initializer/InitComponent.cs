@@ -9,10 +9,10 @@ namespace Infusion
 {
 	public class InitComponent : MonoBehaviour
 	{
-		private readonly MapComponent_LabelDrawer mapComp = new MapComponent_LabelDrawer();
+		private readonly MapComponent_InfusionManager mapComp = new MapComponent_InfusionManager();
 
 		private const string ModName = "LT_Infusion";
-		private const string CompName = "Infusion.MapComponent_LabelDrawer";
+		private const string CompName = "Infusion.MapComponent_InfusionManager";
 		private void OnLevelWasLoaded(int level)
 		{
 			if (level != 1) return;

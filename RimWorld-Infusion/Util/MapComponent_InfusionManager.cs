@@ -1,10 +1,41 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using Verse;
 
 namespace Infusion
 {
-	class MapComponent_LabelDrawer : MapComponent
+	class MapComponent_InfusionManager : MapComponent
 	{
+		private int lastTick = 0;
+		public override void MapComponentTick()
+		{
+			//Execute every 5 ticks
+			var curTick = Find.TickManager.TicksGame;
+			if (curTick - lastTick != 5)
+				return;
+			lastTick = curTick;
+
+			var targetComps = new List<CompInfusion>();
+			foreach (var current in Find.ListerPawns.AllPawns)
+			{
+				if (current.def != ThingDef.Named("Human"))
+					continue;
+				if (current.equipment.Primary == null)
+					continue;
+				var compInfusion = current.equipment.Primary.TryGetComp<CompInfusion>();
+				if(compInfusion != null)
+					targetComps.Add(compInfusion);
+			}
+			foreach (var current in targetComps)
+			{
+				if (current.IsTried)
+					continue;
+				Log.Message(current.parent + " Found. Trying.");
+				if (current.SetInfusion())
+					Log.Message("Infused!");
+			}
+		}
+
 		public override void MapComponentOnGUI()
 		{
 			base.MapComponentOnGUI();
