@@ -10,9 +10,9 @@ namespace Infusion
 		private int lastTick;
 		public override void MapComponentTick()
 		{
-			//Execute every 5 ticks
+			//Execute every 6 ticks
 			var curTick = Find.TickManager.TicksGame;
-			if (curTick - lastTick != 5)
+			if (curTick - lastTick < 6)
 				return;
 			lastTick = curTick;
 
@@ -107,7 +107,7 @@ namespace Infusion
 					label += infSuffix.GetInfusionLabelShort();
 
 				GenWorldUI.DrawThingLabel(
-					GenWorldUI.LabelDrawPosFor(current.parent, -0.64f), label, color);
+					GenWorldUI.LabelDrawPosFor(current.parent, -0.66f), label, color);
 			}
 		}
 	}

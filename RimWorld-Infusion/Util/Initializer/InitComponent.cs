@@ -21,7 +21,7 @@ namespace Infusion
 			{
 				InfusionLabelManager.ReInit();
 				InjectMapcomp();
-				TryAddComp();
+				TryInjectComp();
 			}
 			catch (Exception ex)
 			{
@@ -29,23 +29,6 @@ namespace Infusion
 				Log.Error(ex.ToString());
 			}
 		}
-		/*
-		public void Update()
-		{
-			if (isDone) return;
-
-			try
-			{
-				InjectMapcomp();
-				TryAddComp();
-			}
-			catch (Exception ex)
-			{
-				Log.Error(ModName + ": Error initializing mod");
-				Log.Error(ex.ToString());
-			}
-			isDone = true;
-		}*/
 		private static bool IsModLoaded()
 		{
 			foreach (var current in LoadedModManager.LoadedMods)
@@ -67,63 +50,78 @@ namespace Infusion
 			Find.Map.components.Add(mapComp);
 			Log.Message(ModName + " : " + CompName + " Injected");
 		}
-		private void TryAddComp()
+		private void TryInjectComp()
 		{
 			if (!IsModLoaded())
 			{
 				Log.Warning(ModName + " : Mod not loaded");
 				return;
 			}
+
+			//Access ThingDef database with each def's defName.
 			var typeFromHandle = typeof(DefDatabase<ThingDef>);
-			var defsList = typeFromHandle.GetField("defsList", BindingFlags.Static | BindingFlags.NonPublic);
 			var defsByName = typeFromHandle.GetField("defsByName", BindingFlags.Static | BindingFlags.NonPublic);
-			if (defsList == null)
+			if (defsByName == null)
 			{
 				Log.Error(ModName + " : field == null");
 				return;
 			}
-			if (defsByName == null)
-			{
-				Log.Error(ModName + " : field2 == null");
-				return;
-			}
-			var value = defsList.GetValue(null);
-			var list = value as List<ThingDef>;
-			var value2 = defsByName.GetValue(null);
-			var dictionary = value2 as Dictionary<string, ThingDef>;
-			if (list == null || dictionary == null)
+			var valDefsByName = defsByName.GetValue(null);
+			var dictDefsByName = valDefsByName as Dictionary<string, ThingDef>;
+			if (dictDefsByName == null)
 			{
 				throw new Exception(ModName + ": Could not access private members");
 			}
-			foreach (KeyValuePair<string, ThingDef> cur in dictionary)
+			foreach (KeyValuePair<string, ThingDef> cur in dictDefsByName)
 			{
 				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon)
 				{
 					continue;
 				}
 
-				AddComp(cur.Value, typeof(CompInfusion));
+				AddCompInfusion(cur.Value);
 			}
 			Log.Message("Initialized " + ModName);
 		}
-		private static void AddComp(ThingDef def, Type compToAdd)
+
+		/// <summary>
+		/// Inject new CompInfusion to existing defs. Only works when the def has CompQuality.
+		/// </summary>
+		/// <param name="def">ThingDef to be added.</param>
+		private static void AddCompInfusion(ThingDef def)
 		{
 			var qualityExist = false;
 			foreach (var current in def.comps)
 			{
-				if (current.compClass == compToAdd)
+				//We don't want to add a comp that is already there.
+				if (current.compClass == typeof(CompInfusion))
 				{
 					return;
 				}
-				if (current.compClass == typeof(CompQuality))
+				//Only add when CompQuality exists. Pass when we already know that it has CompQuality.
+				if (!qualityExist && current.compClass == typeof(CompQuality))
 				{
 					qualityExist = true;
 				}
 			}
 			if (!qualityExist) return;
 
-			var compProperties = new CompProperties { compClass = compToAdd };
+			//As we are adding, not replacing, we need a fresh CompProperties.
+			//We don't need anything except compClass as CompInfusion does not take anything.
+			var compProperties = new CompProperties { compClass = typeof(CompInfusion) };
 			def.comps.Add(compProperties);
+
+			TryReplaceClass(def);
+		}
+
+		/// <summary>
+		/// Replace ThingWithComps with ThingWithInfusions.
+		/// </summary>
+		/// <param name="def">ThingDef to be replaced.</param>
+		private static void TryReplaceClass(ThingDef def)
+		{
+			if(def.thingClass == typeof(ThingWithComps))
+				def.thingClass = typeof (ThingWithInfusions);
 		}
 	}
 }

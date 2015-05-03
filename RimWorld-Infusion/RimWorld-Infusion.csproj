@@ -48,9 +48,11 @@
   <ItemGroup>
     <Compile Include="CompInfusion.cs" />
     <Compile Include="StatPart_InfusionWorkerTemperature.cs" />
+    <Compile Include="ThingWithInfusions.cs" />
+    <Compile Include="Util\GenInfusionLabel.cs" />
     <Compile Include="Util\InfusionLabelManager.cs" />
     <Compile Include="Util\InfusionWords.cs" />
-    <Compile Include="Util\InfusionUtility.cs" />
+    <Compile Include="Util\GenInfusion.cs" />
     <Compile Include="Util\MapComponent_InfusionManager.cs" />
     <Compile Include="Util\Initializer\InitComponent.cs" />
     <Compile Include="Util\Initializer\Initializer.cs" />

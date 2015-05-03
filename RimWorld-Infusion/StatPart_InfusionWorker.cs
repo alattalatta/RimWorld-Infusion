@@ -64,13 +64,13 @@ namespace Infusion
 			{
 				if (StatModOf(infPrefix).offset != 0)
 				{
-					result.Append("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": ");
+					result.Append("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": ");
 					result.AppendLine((StatModOf(infPrefix).offset > 0 ? "+" : "-") +
 									  StatModOf(infPrefix).offset.ToAbs().ToStringPercent());
 				}
 				if (StatModOf(infPrefix).multiplier != 1)
 				{
-					result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
+					result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": x" +
 									  StatModOf(infPrefix).multiplier.ToStringPercent());
 				}
 			}
@@ -78,13 +78,13 @@ namespace Infusion
 
 			if (StatModOf(infSuffix).offset != 0)
 			{
-				result.Append("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": ");
+				result.Append("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": ");
 				result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
 				                  StatModOf(infSuffix).offset.ToAbs().ToStringPercent());
 			}
 			if (StatModOf(infSuffix).multiplier != 1)
 			{
-				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabelShort().CapitalizeFirst() + ": x" +
+				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": x" +
 				                  StatModOf(infSuffix).multiplier.ToStringPercent());
 			}
 			return result.ToString();

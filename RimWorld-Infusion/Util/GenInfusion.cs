@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using RimWorld;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 
 namespace Infusion
 {
-	public static class InfusionUtility
+	public static class GenInfusion
 	{
 		/// <summary>
 		/// Set prefix enum parameter's value to the thing's prefix infusion if exists.
@@ -46,43 +42,6 @@ namespace Infusion
 			return infSuffix != InfusionSuffix.None;
 		}
 
-		public static string GetInfusedLabel(this Thing thing)
-		{
-			var result = new StringBuilder();
-
-			InfusionPrefix infPrefix;
-			if (TryGetInfusionPrefix(thing, out infPrefix))
-				result.Append(GetInfusionLabel(infPrefix) + " ");
-
-			string label;
-			if (thing.Stuff != null)
-				label = thing.Stuff.LabelAsStuff + " " + thing.def.label;
-			else
-				label = thing.def.label;
-
-			InfusionSuffix infSuffix;
-			result.Append(TryGetInfusionSuffix(thing, out infSuffix)
-				? StaticSet.StringInfusionInfusedLabelSuffix.Translate(label, GetInfusionLabel(infSuffix))
-				: thing.def.label);
-
-			return result.ToString().CapitalizeFirst();
-		}
-
-		public static string GetInfusedLabelShort(this Thing thing)
-		{
-			var result = new StringBuilder();
-
-			InfusionPrefix infPrefix;
-			if (TryGetInfusionPrefix(thing, out infPrefix))
-				result.Append(GetInfusionLabel(infPrefix) + " ");
-
-			InfusionSuffix infSuffix;
-			result.Append(TryGetInfusionSuffix(thing, out infSuffix)
-				? StaticSet.StringInfusionInfusedLabelSuffix.Translate(thing.def.label, GetInfusionLabel(infSuffix))
-				: thing.def.label);
-
-			return result.ToString().CapitalizeFirst();
-		}
 		public static string GetInfusionLabelShort(this InfusionPrefix infPrefix)
 		{
 			return StaticSet.StringInfusionPrefixLabelsShort[(int) infPrefix];
@@ -91,6 +50,7 @@ namespace Infusion
 		{
 			return StaticSet.StringInfusionSuffixLabelsShort[(int) infSuffix];
 		}
+
 		public static string GetInfusionLabel(this InfusionPrefix infPrefix)
 		{
 			return StaticSet.StringInfusionPrefixLabels[(int) infPrefix];
@@ -104,7 +64,6 @@ namespace Infusion
 		{
 			return StaticSet.StringInfusionPrefixDescriptions[(int) infPrefix];
 		}
-
 		public static string GetInfusionDescription(this InfusionSuffix infSuffix)
 		{
 			return StaticSet.StringInfusionSuffixDescriptions[(int) infSuffix];

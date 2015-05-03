@@ -52,7 +52,7 @@ namespace Infusion
 		protected StatMod starlight = new StatMod();
 		protected StatMod pain = new StatMod();
 		protected StatMod automaton = new StatMod();
-		protected StatMod disassembler = new StatMod();
+		protected StatMod dismantle = new StatMod();
 		protected StatMod exhaust = new StatMod();
 		#endregion //StatMods
 
@@ -210,8 +210,8 @@ namespace Infusion
 					return pain;
 				case InfusionSuffix.Automaton:
 					return automaton;
-				case InfusionSuffix.Disassembler:
-					return disassembler;
+				case InfusionSuffix.Dismantle:
+					return dismantle;
 				case InfusionSuffix.Exhaust:
 					return exhaust;
 

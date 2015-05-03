@@ -48,13 +48,14 @@
 		Creation,		// WorkSpeedGlobal+
 		Stream,			// Attack-, Cooldown+++, Accuracy-
 		Salt,			// CookSpeed+, FoodPoisonChance+, ComfyTemperatureMin/Max+
+		Art,			// SculptingSpeed++, Attack+
 		
 		Tier3,			//= Hack
 		Sunlight,		// Attack++, Accuracy++, ImmunityGainSpeed+
 		Starlight,		// Accuracy+, Cooldown+++
 		Pain,			// Attack++++, PsychicSensitivity--, MentalBreakThreshold-, ImmunityGainSpeed--
 		Automaton,		// WorkSpeedGlobal++
-		Disassembler,	// ButcheryMechanoidSpeed++, ButcheryMechanoidEfficiency+
+		Dismantle,		// ButcheryMechanoidSpeed++, ButcheryMechanoidEfficiency+
 		Exhaust,		// MoveSpeed--
 
 		End				//= Hack

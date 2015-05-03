@@ -35,7 +35,7 @@ namespace Infusion
 		public static string StringInfusionInfoSuffixBonus = "InfusionInfoSuffixBonus";
 
 		/**
-		 * InfusionUtility
+		 * GenInfusion
 		 */
 		//{1: golden sword} of {2: stream}
 		public static string StringInfusionInfusedLabelSuffix = "InfusionInfusedLabelSuffix";

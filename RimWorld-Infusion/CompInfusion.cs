@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -59,7 +60,7 @@ namespace Infusion
 			 * Superior		5 24
 			 * Good			4 07
 			 */
-			float chance = (int)qc * 20 - 95;
+		    var chance = GetChance(qc, true);
 			//Lower chance with ranged weapons
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.88f;
@@ -79,7 +80,7 @@ namespace Infusion
 			 * Superior		5 27
 			 * Good			4 05
 			 */
-			chance = (int)qc * 23 - 89;
+		    chance = GetChance(qc, false);
 			//Lower chance with ranged weapons
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.70f;
@@ -97,20 +98,28 @@ namespace Infusion
 				return false;
 			}
 
+		    var tierMod = 1f;
+		    List<StuffCategoryDef> stuffCategory = parent.Stuff.stuffProps.categories;
+			if(parent.Stuff != null)
+			{
+				if (stuffCategory.Exists(s => s == StuffCategoryDefOf.Metallic))
+					tierMod *= parent.Stuff.stuffProps.statFactors.Find(s => s.stat == StatDefOf.Beauty).value;
+			}
+
 			if (!passPrefix)
 			{
 				/** PrefixTable
-				 * Tier 1		45
-				 * Tier 2		32
-				 * Tier 3		23
+				 * Tier 1		45 - (qc - 4)
+				 * Tier 2		32 - (qc - 4)
+				 * Tier 3		23 + 2 * (qc - 4)
 				 */
-				rand = Rand.Range(0, 100);
-				if (rand >= 55)
-					rand = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
-				else if (rand >= 23)
+				rand = (int)(tierMod * Rand.Range(0, 100));
+				if (rand >= 23 + 2 * ((int)qc - 4))
+					rand = MathInfusion.Rand(InfusionPrefix.Tier3, InfusionPrefix.End);
+				else if (rand >= 32 - (int)qc + 4)
 					rand = MathInfusion.Rand(InfusionPrefix.Tier2, InfusionPrefix.Tier3);
 				else
-					rand = MathInfusion.Rand(InfusionPrefix.Tier3, InfusionPrefix.End);
+					rand = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
 
 				prefix = (InfusionPrefix)rand;
 			}
@@ -118,17 +127,17 @@ namespace Infusion
 			if (!passSuffix)
 			{
 				/** SuffixTable
-				 * Tier 1		50
-				 * Tier 2		38
-				 * Tier 3		12
+				 * Tier 1		50 - (qc - 4)
+				 * Tier 2		38 - (qc - 4)
+				 * Tier 3		12 + 2 * (qc - 4)
 				 */
 				rand = Rand.Range(0, 100);
-				if (rand >= 50)
-					rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
-				else if (rand >= 12)
+				if (rand >= 12 + 2 * ((int)qc - 4))
+					rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
+				else if (rand >= 38 - (int)qc + 4)
 					rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
 				else
-					rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
+					rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
 
 				suffix = (InfusionSuffix)rand;
 			}
@@ -214,6 +223,12 @@ namespace Infusion
 				result.AppendLine(StaticSet.StringInfusionInfoSuffixBonus.Translate(suffix.GetInfusionDescription()));
 
 		    return base.GetDescriptionPart() + result;
+	    }
+
+	    private static float GetChance(QualityCategory qc, bool isPrefix)
+	    {
+			return isPrefix ? 
+				(int)qc * 20 - 95 : (int)qc * 23 - 89;
 	    }
     }
 }
