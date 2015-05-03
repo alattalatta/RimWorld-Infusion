@@ -104,18 +104,6 @@ namespace Infusion
 				return false;
 			}
 
-		    var tierMod = 1f;
-			if(parent.Stuff != null)
-			{
-				List<StuffCategoryDef> stuffCategory = parent.Stuff.stuffProps.categories;
-				if (stuffCategory.Exists(s => s == StuffCategoryDefOf.Metallic))
-					tierMod *= parent.Stuff.stuffProps.statFactors.Find(s => s.stat == StatDefOf.Beauty).value;
-			}
-		    if (tierMod > 3)
-		    {
-			    tierMod -= (tierMod - 3)/2;
-		    }
-
 			if (!passPrefix)
 			{
 				/** PrefixTable
@@ -123,10 +111,10 @@ namespace Infusion
 				 * Tier 2		32 - (qc - 4)
 				 * Tier 3		23 + 2 * (qc - 4)
 				 */
-				rand = (int)(tierMod * Rand.Range(0, 100));
-				if (rand >= 23 + 2 * ((int)qc - 4))
+				rand = Rand.Range(0, 100);
+				if (rand <= 23 + 2 * ((int)qc - 4))
 					rand = MathInfusion.Rand(InfusionPrefix.Tier3, InfusionPrefix.End);
-				else if (rand >= 32 - (int)qc + 4)
+				else if (rand <= 32 - (int)qc + 4)
 					rand = MathInfusion.Rand(InfusionPrefix.Tier2, InfusionPrefix.Tier3);
 				else
 					rand = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
@@ -141,10 +129,10 @@ namespace Infusion
 				 * Tier 2		38 - (qc - 4)
 				 * Tier 3		12 + 2 * (qc - 4)
 				 */
-				rand = (int)(tierMod * Rand.Range(0, 100));
-				if (rand >= 12 + 2 * ((int)qc - 4))
+				rand = Rand.Range(0, 100);
+				if (rand <= 12 + 2 * ((int)qc - 4))
 					rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
-				else if (rand >= 38 - (int)qc + 4)
+				else if (rand <= 38 - (int)qc + 4)
 					rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
 				else
 					rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
@@ -156,8 +144,12 @@ namespace Infusion
 			parent.HitPoints = parent.MaxHitPoints;
 
 		    if (shouldFireMote)
-			{
-				Messages.Message(StaticSet.StringInfusionMessage.Translate(parent.def.label));
+		    {
+			    var msg = qc + " ";
+			    if (parent.Stuff != null)
+				    msg += parent.Stuff.LabelAsStuff + " ";
+			    msg += parent.def.label;
+				Messages.Message(StaticSet.StringInfusionMessage.Translate(msg));
 				InfusionSound.PlayOneShotOnCamera();
 				MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, new Color(1f, 0.4f, 0f));
 		    }
@@ -197,11 +189,10 @@ namespace Infusion
 
 			InfusionSuffix infSuffix;
 		    InfusionPrefix infPrefix;
-		    var flag = true;
-			other.TryGetInfusionPrefix(out infPrefix);
+		    other.TryGetInfusionPrefix(out infPrefix);
 		    other.TryGetInfusionSuffix(out infSuffix);
 
-		    flag = infPrefix == prefix && infSuffix == suffix;
+		    var flag = infPrefix == prefix && infSuffix == suffix;
 
 		    return flag;
 	    }

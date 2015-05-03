@@ -63,9 +63,6 @@ namespace Infusion
 					sufPass = true;
 				}
 
-				if (prePass && sufPass)
-					continue;
-
 				Color color;
 				//When there is only suffix
 				if (prePass)
