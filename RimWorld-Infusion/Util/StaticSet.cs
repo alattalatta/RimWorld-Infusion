@@ -19,6 +19,8 @@ namespace Infusion
 		/**
 		 * CompInfusion
 		 */
+		//Your weapon, {0}, is infused!
+		public static string StringInfusionMessage = "InfusionMessage";
 		//Full name
 		public static string StringInfusionFullName = "InfusionFullName".Translate();
 		//This specific weapon has more potential than others.\nYour colonists had named it as {0}.

@@ -10,7 +10,10 @@ namespace Infusion
 			get
 			{
 				QualityCategory qc;
-				if (!this.TryGetQuality(out qc) || qc < QualityCategory.Good || this.TryGetComp<CompInfusion>() == null)
+				if (!this.TryGetQuality(out qc) ||
+					qc < QualityCategory.Good ||
+					this.TryGetComp<CompInfusion>() == null ||
+					!this.TryGetComp<CompInfusion>().IsInfused)
 					return base.LabelBase;
 
 				return this.GetInfusedLabel();

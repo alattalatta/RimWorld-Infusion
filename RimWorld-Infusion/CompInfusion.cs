@@ -3,6 +3,7 @@ using System.Text;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace Infusion
 {
@@ -13,10 +14,15 @@ namespace Infusion
 		    get { return isTried; }
 	    }
 
+	    public bool IsInfused
+	    {
+		    get { return prefix != InfusionPrefix.None || suffix != InfusionSuffix.None; }
+	    }
+
 	    private bool isTried;
-	    private bool isInfused;
 		private InfusionPrefix prefix;
 	    private InfusionSuffix suffix;
+	    private static readonly SoundDef InfusionSound = SoundDef.Named("Infusion_Infused");
 
 	    public Pair<InfusionPrefix, InfusionSuffix> Infusion
 	    {
@@ -30,7 +36,7 @@ namespace Infusion
 		    }
 	    }
 
-		public bool SetInfusion()
+		public bool SetInfusion(bool shouldFireMote = false)
 		{
 			if (isTried)
 				return false;
@@ -41,7 +47,7 @@ namespace Infusion
 			}
 
 			var qc = compQuality.Quality;
-			if (qc > QualityCategory.Normal) return GenerateInfusion(qc);
+			if (qc > QualityCategory.Normal) return GenerateInfusion(qc, shouldFireMote);
 
 			prefix = InfusionPrefix.None;
 			suffix = InfusionSuffix.None;
@@ -49,7 +55,7 @@ namespace Infusion
 			return false;
 		}
 
-	    private bool GenerateInfusion(QualityCategory qc)
+	    private bool GenerateInfusion(QualityCategory qc, bool shouldFireMote)
 		{
 			bool passPrefix = false, passSuffix = false;
 
@@ -149,18 +155,22 @@ namespace Infusion
 			//For added hit points
 			parent.HitPoints = parent.MaxHitPoints;
 
-			MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, new Color(1f, 0.4f, 0f));
+		    if (shouldFireMote)
+			{
+				Messages.Message(StaticSet.StringInfusionMessage.Translate(parent.def.label));
+				InfusionSound.PlayOneShotOnCamera();
+				MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, new Color(1f, 0.4f, 0f));
+		    }
 			isTried = true;
-			isInfused = true;
 			return true;
 	    }
 
 	    public override void PostSpawnSetup()
 	    {
 		    base.PostSpawnSetup();
-		    SetInfusion();
+		    SetInfusion(true);
 
-		    if (isInfused)
+		    if (IsInfused)
 			    InfusionLabelManager.Register(this);
 	    }
 
@@ -168,7 +178,6 @@ namespace Infusion
 	    {
 		    base.PostExposeData();
 			Scribe_Values.LookValue(ref isTried, "isTried", true);
-		    Scribe_Values.LookValue(ref isInfused, "isInfused", false);
 		    Scribe_Values.LookValue(ref prefix, "prefix", InfusionPrefix.None);
 		    Scribe_Values.LookValue(ref suffix, "suffix", InfusionSuffix.None);
 	    }
@@ -177,25 +186,31 @@ namespace Infusion
 	    {
 		    base.PostDeSpawn();
 
-			if(isInfused)
+			if(IsInfused)
 				InfusionLabelManager.DeRegister(this);
 	    }
 
 	    public override bool AllowStackWith(Thing other)
 	    {
-			//Same weapon, same stuff, same pre&suffix? Not possible
-			//Weapons are not stackable anyway
-		    return false;
+		    if (other.TryGetComp<CompInfusion>() == null)
+			    return false;
+
+			InfusionSuffix infSuffix;
+		    InfusionPrefix infPrefix;
+		    var flag = true;
+			other.TryGetInfusionPrefix(out infPrefix);
+		    other.TryGetInfusionSuffix(out infSuffix);
+
+		    flag = infPrefix == prefix && infSuffix == suffix;
+
+		    return flag;
 	    }
-
-		public override string CompInspectStringExtra()
+		public override void PostSplitOff(Thing piece)
 		{
-			if (prefix == InfusionPrefix.None && suffix == InfusionSuffix.None)
-				return null;
-
-			QualityCategory qc;
-			parent.TryGetQuality(out qc);
-			return StaticSet.StringInfusionFullName + ": " + parent.GetInfusedLabel() + " (" + qc.GetLabel() + ")";
+			base.PostSplitOff(piece);
+			piece.TryGetComp<CompInfusion>().isTried = IsTried;
+			piece.TryGetComp<CompInfusion>().prefix = prefix;
+			piece.TryGetComp<CompInfusion>().suffix = suffix;
 		}
 
 	    public override string GetDescriptionPart()
