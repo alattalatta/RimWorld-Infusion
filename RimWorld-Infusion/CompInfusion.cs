@@ -145,7 +145,7 @@ namespace Infusion
 
 		    if (shouldFireMote)
 		    {
-			    var msg = qc + " ";
+			    var msg = qc.ToString().ToLower() + " ";
 			    if (parent.Stuff != null)
 				    msg += parent.Stuff.LabelAsStuff + " ";
 			    msg += parent.def.label;
