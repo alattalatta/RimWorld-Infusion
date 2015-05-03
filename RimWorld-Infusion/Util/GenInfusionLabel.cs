@@ -19,8 +19,8 @@ namespace Infusion
 			public QualityCategory Quality;
 			public InfusionPrefix Prefix;
 			public InfusionSuffix Suffix;
-			public int Health;
-			public int MaxHealth;
+			public int HitPoints;
+			public int MaxHitPoints;
 
 			public override int GetHashCode()
 			{
@@ -44,18 +44,16 @@ namespace Infusion
 					num2 ^= (int)Suffix * 1183;
 
 				if (thingDef.useHitPoints)
-					num2 = num2 ^ Health * 743273 ^ MaxHealth * 7437;
+					num2 = num2 ^ HitPoints * 743273 ^ MaxHitPoints * 7437;
 				return num2;
 			}
 		}
 
-		public static string GetInfusedLabel(this Thing thing, bool isStuffed = true)
+		public static string GetInfusedLabel(this Thing thing, bool isStuffed = true, bool isDetailed = true)
 		{
 			var request = new LabelRequest()
 			{
 				EntDef = thing.def,
-				Health = thing.HitPoints,
-				MaxHealth = thing.MaxHitPoints,
 				Thing = thing
 			};
 			thing.TryGetQuality(out request.Quality);
@@ -64,6 +62,11 @@ namespace Infusion
 
 			if (isStuffed)
 				request.StuffDef = thing.Stuff;
+			if (isDetailed)
+			{
+				request.MaxHitPoints = thing.MaxHitPoints;
+				request.HitPoints = thing.HitPoints;
+			}
 
 			var hashCode = request.GetHashCode();
 			string result;
@@ -71,12 +74,12 @@ namespace Infusion
 
 			if (labelDictionary.Count > LabelDictionaryMaxCount)
 				labelDictionary.Clear();
-			result = NewInfusedThingLabel(thing, isStuffed);
+			result = NewInfusedThingLabel(thing, isStuffed, isDetailed);
 			labelDictionary.Add(hashCode, result);
 			return result;
 		}
 
-		private static string NewInfusedThingLabel(Thing thing, bool isStuffed)
+		private static string NewInfusedThingLabel(Thing thing, bool isStuffed, bool isDetailed)
 		{
 			string result = null;
 
@@ -95,14 +98,17 @@ namespace Infusion
 				? StaticSet.StringInfusionInfusedLabelSuffix.Translate(label, infSuffix.GetInfusionLabel())
 				: thing.def.label;
 
+			if (!isDetailed)
+				return result;
+
 			result += " (";
 			QualityCategory qc;
 			if (thing.TryGetQuality(out qc))
-				result += qc.GetLabel();
+				result += qc.GetLabelShort();
 
-			if (!(thing.HitPoints < thing.MaxHitPoints)) return result.CapitalizeFirst();
+			if (!(thing.HitPoints < thing.MaxHitPoints)) return result + ")";
 
-			result += "(" + ((float)thing.HitPoints / thing.MaxHitPoints).ToStringPercent() + ")";
+			result += " " + ((float)thing.HitPoints / thing.MaxHitPoints).ToStringPercent() + ")";
 			return result;
 		}
 	}

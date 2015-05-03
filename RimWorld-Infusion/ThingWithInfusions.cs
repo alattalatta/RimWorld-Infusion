@@ -5,15 +5,15 @@ namespace Infusion
 {
 	class ThingWithInfusions : ThingWithComps
 	{
-		public override string Label
+		public override string LabelBase
 		{
 			get
 			{
 				QualityCategory qc;
 				if (!this.TryGetQuality(out qc) || qc < QualityCategory.Good || this.TryGetComp<CompInfusion>() == null)
-					return base.Label;
+					return base.LabelBase;
 
-				return this.GetInfusedLabel().CapitalizeFirst();
+				return this.GetInfusedLabel();
 			}
 		}
 	}

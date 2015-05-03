@@ -99,12 +99,16 @@ namespace Infusion
 			}
 
 		    var tierMod = 1f;
-		    List<StuffCategoryDef> stuffCategory = parent.Stuff.stuffProps.categories;
 			if(parent.Stuff != null)
 			{
+				List<StuffCategoryDef> stuffCategory = parent.Stuff.stuffProps.categories;
 				if (stuffCategory.Exists(s => s == StuffCategoryDefOf.Metallic))
 					tierMod *= parent.Stuff.stuffProps.statFactors.Find(s => s.stat == StatDefOf.Beauty).value;
 			}
+		    if (tierMod > 3)
+		    {
+			    tierMod -= (tierMod - 3)/2;
+		    }
 
 			if (!passPrefix)
 			{
@@ -131,7 +135,7 @@ namespace Infusion
 				 * Tier 2		38 - (qc - 4)
 				 * Tier 3		12 + 2 * (qc - 4)
 				 */
-				rand = Rand.Range(0, 100);
+				rand = (int)(tierMod * Rand.Range(0, 100));
 				if (rand >= 12 + 2 * ((int)qc - 4))
 					rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
 				else if (rand >= 38 - (int)qc + 4)
@@ -203,7 +207,7 @@ namespace Infusion
 			    return null;
 
 			var result = new StringBuilder(null);
-		    result.AppendLine(StaticSet.StringInfusionInfo.Translate(parent.GetInfusedLabel()));
+		    result.AppendLine(StaticSet.StringInfusionInfo.Translate(parent.GetInfusedLabel(true, false)));
 		    result.AppendLine();
 
 		    if (!prePass)

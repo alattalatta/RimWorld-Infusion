@@ -20,6 +20,9 @@ namespace Infusion
 			try
 			{
 				InfusionLabelManager.ReInit();
+				if (!IsModLoaded())
+					throw new Exception(ModName + " : Mod not loaded");
+
 				InjectMapcomp();
 				TryInjectComp();
 			}
@@ -28,6 +31,7 @@ namespace Infusion
 				Log.Error(ModName + " : Error Initializing mod");
 				Log.Error(ex.ToString());
 			}
+			Log.Message("Initialized the " + ModName + "mod");
 		}
 		private static bool IsModLoaded()
 		{
@@ -48,23 +52,16 @@ namespace Infusion
 			if (Find.Map.components.FindAll(x => x.GetType().ToString() == CompName).Count != 0) return;
 
 			Find.Map.components.Add(mapComp);
-			Log.Message(ModName + " : " + CompName + " Injected");
+			//Log.Message("Injected new MapComponent by " + ModName);
 		}
 		private void TryInjectComp()
 		{
-			if (!IsModLoaded())
-			{
-				Log.Warning(ModName + " : Mod not loaded");
-				return;
-			}
-
 			//Access ThingDef database with each def's defName.
 			var typeFromHandle = typeof(DefDatabase<ThingDef>);
 			var defsByName = typeFromHandle.GetField("defsByName", BindingFlags.Static | BindingFlags.NonPublic);
 			if (defsByName == null)
 			{
-				Log.Error(ModName + " : field == null");
-				return;
+				throw new NullReferenceException(ModName + "defsByName is null");
 			}
 			var valDefsByName = defsByName.GetValue(null);
 			var dictDefsByName = valDefsByName as Dictionary<string, ThingDef>;
@@ -75,13 +72,11 @@ namespace Infusion
 			foreach (KeyValuePair<string, ThingDef> cur in dictDefsByName)
 			{
 				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon)
-				{
 					continue;
-				}
 
 				AddCompInfusion(cur.Value);
 			}
-			Log.Message("Initialized " + ModName);
+			//Log.Message("Injected new ThingComp by " + ModName);
 		}
 
 		/// <summary>

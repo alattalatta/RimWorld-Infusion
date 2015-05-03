@@ -16,6 +16,16 @@ namespace Infusion
 				return;
 			lastTick = curTick;
 
+			InfuseEquipments();
+		}
+		public override void MapComponentOnGUI()
+		{
+			base.MapComponentOnGUI();
+			Draw();
+		}
+
+		private static void InfuseEquipments()
+		{
 			var targetComps = new List<CompInfusion>();
 			foreach (var current in Find.ListerPawns.AllPawns)
 			{
@@ -24,7 +34,7 @@ namespace Infusion
 				if (current.equipment.Primary == null)
 					continue;
 				var compInfusion = current.equipment.Primary.TryGetComp<CompInfusion>();
-				if(compInfusion != null)
+				if (compInfusion != null)
 					targetComps.Add(compInfusion);
 			}
 			foreach (var current in targetComps)
@@ -34,13 +44,6 @@ namespace Infusion
 				current.SetInfusion();
 			}
 		}
-
-		public override void MapComponentOnGUI()
-		{
-			base.MapComponentOnGUI();
-			Draw();
-		}
-
 		private static void Draw()
 		{
 			if (Find.CameraMap.CurrentZoom != CameraZoomRange.Closest) return;
