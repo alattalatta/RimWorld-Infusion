@@ -103,7 +103,7 @@ namespace Infusion
 			if (!(thing.HitPoints < thing.MaxHitPoints)) return result.CapitalizeFirst();
 
 			result += "(" + ((float)thing.HitPoints / thing.MaxHitPoints).ToStringPercent() + ")";
-			return result.CapitalizeFirst();
+			return result;
 		}
 	}
 }
