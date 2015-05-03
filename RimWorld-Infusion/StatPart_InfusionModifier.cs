@@ -47,6 +47,7 @@ namespace Infusion
 		protected StatMod creation = new StatMod();
 		protected StatMod stream = new StatMod();
 		protected StatMod salt = new StatMod();
+		protected StatMod art = new StatMod();
 
 		protected StatMod sunlight = new StatMod();
 		protected StatMod starlight = new StatMod();
@@ -201,6 +202,8 @@ namespace Infusion
 					return stream;
 				case InfusionSuffix.Salt:
 					return salt;
+				case InfusionSuffix.Art:
+					return art;
 
 				case InfusionSuffix.Sunlight:
 					return sunlight;

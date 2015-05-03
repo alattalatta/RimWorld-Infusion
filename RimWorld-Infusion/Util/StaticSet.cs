@@ -21,7 +21,7 @@ namespace Infusion
 		 */
 		//Full name
 		public static string StringInfusionFullName = "InfusionFullName".Translate();
-		//This specific weapon has more potential than others.\nYour colonists had named it {0}.
+		//This specific weapon has more potential than others.\nYour colonists had named it as {0}.
 		public static string StringInfusionInfo = "InfusionInfo";
 		//This weapon is {0}.
 		public static string StringInfusionInfoPrefix = "InfusionInfoPrefix";
