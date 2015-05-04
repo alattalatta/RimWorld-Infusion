@@ -1,43 +1,31 @@
 ﻿using System.Text;
-using RimWorld;
 using Verse;
 
 namespace Infusion
 {
 	public class StatPart_InfusionWorkerTemperature : StatPart_InfusionWorker
 	{
-		protected override string WriteExplanation(StatRequest req, InfusionPrefix infPrefix, InfusionSuffix infSuffix)
+		protected override string WriteExplanationDetail(Thing thing, string val)
 		{
+			var pawn = thing as Pawn;
+			if (pawn == null)
+				return null;
+
+			StatMod mod;
+			var inf = val.ToInfusionDef();
 			var result = new StringBuilder();
-			result.AppendLine(StaticSet.StringInfusionDescBonus);
+			if (!inf.GetStatValue(notifier.ToStatDef(), out mod)) return null;
 
-			if (infPrefix != InfusionPrefix.None)
+			if (mod.offset != 0)
 			{
-				if (StatModOf(infPrefix).offset != 0)
-				{
-					result.Append("    " + req.Thing.GetInfusedLabel(false).CapitalizeFirst() + ": ");
-					result.AppendLine((StatModOf(infPrefix).offset > 0 ? "+" : "-") +
-									  StatModOf(infPrefix).offset.ToAbs().ToStringTemperatureOffset());
-				}
-				if (StatModOf(infPrefix).multiplier != 1)
-				{
-					result.AppendLine("    " + req.Thing.GetInfusedLabel(false).CapitalizeFirst() + ": x" +
-									  StatModOf(infPrefix).multiplier.ToStringPercent());
-				}
+				result.Append("    " + pawn.equipment.Primary.GetInfusedLabel() + ": ");
+				result.Append(mod.offset > 0 ? "+" : "-");
+				result.AppendLine(mod.offset.ToAbs().ToStringTemperatureOffset());
 			}
-			if (infSuffix == InfusionSuffix.None) return result.ToString();
+			if (mod.multiplier == 1) return result.ToString();
 
-			if (StatModOf(infSuffix).offset != 0)
-			{
-				result.Append("    " + req.Thing.GetInfusedLabel(false).CapitalizeFirst() + ": ");
-				result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
-				                  StatModOf(infSuffix).offset.ToAbs().ToStringTemperatureOffset());
-			}
-			if (StatModOf(infSuffix).multiplier != 1)
-			{
-				result.AppendLine("    " + req.Thing.GetInfusedLabel(false).CapitalizeFirst() + ": x" +
-				                  StatModOf(infSuffix).multiplier.ToStringPercent());
-			}
+			result.Append("    " + pawn.equipment.Primary.GetInfusedLabel() + ": x");
+			result.AppendLine(mod.multiplier.ToStringPercent());
 			return result.ToString();
 		}
 	}

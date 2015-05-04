@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace Infusion
@@ -6,81 +7,36 @@ namespace Infusion
 	public static class GenInfusion
 	{
 		/// <summary>
-		/// Set prefix enum parameter's value to the thing's prefix infusion if exists.
+		/// Set parameter targInf to thing's CompInfusion's infusions. Set targInf to null when there is no CompInfusion, or the comp is not infused.
 		/// </summary>
-		/// <param name="thing">The thing to get infusion.</param>
-		/// <param name="infPrefix">The value to set infusion.</param>
-		/// <returns>True if exists, false if not.</returns>
-		public static bool TryGetInfusionPrefix(this Thing thing, out InfusionPrefix infPrefix)
+		/// <param name="thing"></param>
+		/// <param name="targInf"></param>
+		/// <returns></returns>
+		public static bool TryGetInfusions(this Thing thing, out InfusionSet targInf)
 		{
-			var compInfusion = thing.TryGetComp<CompInfusion>();
-			if (compInfusion == null)
+			var comp = thing.TryGetComp<CompInfusion>();
+			if (comp == null)
 			{
-				infPrefix = InfusionPrefix.None;
+				targInf = InfusionSet.Empty;
 				return false;
 			}
-
-			infPrefix = compInfusion.Infusion.First;
-			return infPrefix != InfusionPrefix.None;
-		}
-		/// <summary>
-		/// Set suffix enum parameter's value to the thing's suffix infusion if exists.
-		/// </summary>
-		/// <param name="thing">The thing to get infusion.</param>
-		/// <param name="infSuffix">The value to set infusion.</param>
-		/// <returns>True if exists, false if not.</returns>
-		public static bool TryGetInfusionSuffix(this Thing thing, out InfusionSuffix infSuffix)
-		{
-			var compInfusion = thing.TryGetComp<CompInfusion>();
-			if (compInfusion == null)
-			{
-				infSuffix = InfusionSuffix.None;
-				return false;
-			}
-
-			infSuffix = compInfusion.Infusion.Second;
-			return infSuffix != InfusionSuffix.None;
+			targInf = comp.Infusions;
+			return comp.Infused;
 		}
 
-		public static string GetInfusionLabelShort(this InfusionPrefix infPrefix)
+		public static InfusionDef ToInfusionDef(this string defName)
 		{
-			return StaticSet.StringInfusionPrefixLabelsShort[(int) infPrefix];
-		}
-		public static string GetInfusionLabelShort(this InfusionSuffix infSuffix)
-		{
-			return StaticSet.StringInfusionSuffixLabelsShort[(int) infSuffix];
+			return defName != null ? DefDatabase<InfusionDef>.GetNamed(defName) : null;
 		}
 
-		public static string GetInfusionLabel(this InfusionPrefix infPrefix)
+		public static StatDef ToStatDef(this string defName)
 		{
-			return StaticSet.StringInfusionPrefixLabels[(int) infPrefix];
-		}
-		public static string GetInfusionLabel(this InfusionSuffix infSuffix)
-		{
-			return StaticSet.StringInfusionSuffixLabels[(int) infSuffix];
-		}
-
-		public static string GetInfusionDescription(this InfusionPrefix infPrefix)
-		{
-			return StaticSet.StringInfusionPrefixDescriptions[(int) infPrefix];
-		}
-		public static string GetInfusionDescription(this InfusionSuffix infSuffix)
-		{
-			return StaticSet.StringInfusionSuffixDescriptions[(int) infSuffix];
+			return defName != null ? DefDatabase<StatDef>.GetNamed(defName) : null;
 		}
 	}
 
 	public static class MathInfusion
 	{
-		public static int Rand(InfusionSuffix begin, InfusionSuffix end)
-		{
-			return Verse.Rand.Range((int)begin + 1, (int)end);
-		}
-		public static int Rand(InfusionPrefix begin, InfusionPrefix end)
-		{
-			return Verse.Rand.Range((int)begin + 1, (int)end);
-		}
-
 		public static float ToAbs(this float f)
 		{
 			return Mathf.Abs(f);

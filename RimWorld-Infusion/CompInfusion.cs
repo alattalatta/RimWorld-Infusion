@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.Text;
 using RimWorld;
 using UnityEngine;
@@ -9,53 +9,49 @@ namespace Infusion
 {
     public class CompInfusion : ThingComp
     {
-	    public bool IsTried
+	    public bool Tried
 	    {
-		    get { return isTried; }
+		    get { return tried; }
 	    }
 
-	    public bool IsInfused
+	    public bool Infused
 	    {
-		    get { return prefix != InfusionPrefix.None || suffix != InfusionSuffix.None; }
+		    get { return !infusions.Equals(InfusionSet.Empty); }
 	    }
 
-	    private bool isTried;
-		private InfusionPrefix prefix;
-	    private InfusionSuffix suffix;
-	    private static readonly SoundDef InfusionSound = SoundDef.Named("Infusion_Infused");
-
-	    public Pair<InfusionPrefix, InfusionSuffix> Infusion
-	    {
-		    get
-		    {
-			    return new Pair<InfusionPrefix, InfusionSuffix>
-			    {
-				    First = prefix,
-				    Second = suffix
-			    };
-		    }
-	    }
-
-		public bool SetInfusion(bool shouldFireMote = false)
+		public InfusionSet Infusions
 		{
-			if (isTried)
-				return false;
-			var compQuality = parent.GetComp<CompQuality>();
-			if (compQuality == null)
+			get
 			{
-				return false;
+				return infusions;
 			}
-
-			var qc = compQuality.Quality;
-			if (qc > QualityCategory.Normal) return GenerateInfusion(qc, shouldFireMote);
-
-			prefix = InfusionPrefix.None;
-			suffix = InfusionSuffix.None;
-			isTried = true;
-			return false;
 		}
 
-	    private bool GenerateInfusion(QualityCategory qc, bool shouldFireMote)
+		private bool tried;
+		private InfusionSet infusions = new InfusionSet(null, null);
+	    private static readonly SoundDef InfusionSound = SoundDef.Named("Infusion_Infused");
+
+
+		public void SetInfusion(bool shouldFireMote = false)
+		{
+			if (tried)
+				return;
+			var compQuality = parent.GetComp<CompQuality>();
+			if (compQuality == null)
+				return;
+
+			var qc = compQuality.Quality;
+			if (qc > QualityCategory.Normal)
+			{
+				GenerateInfusion(qc, shouldFireMote);
+				return;
+			}
+
+			infusions = InfusionSet.Empty;
+			tried = true;
+		}
+
+	    private void GenerateInfusion(QualityCategory qc, bool shouldThrowMote)
 		{
 			bool passPrefix = false, passSuffix = false;
 
@@ -67,17 +63,14 @@ namespace Infusion
 			 * Good			4 07
 			 */
 		    var chance = GetChance(qc, true);
-			//Lower chance with ranged weapons
+			//Lower chance with ranged weapons : 88%
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.88f;
 
 			var rand = Rand.Range(0, 100);
 
 			if (rand >= chance)
-			{
-				prefix = InfusionPrefix.None;
 				passPrefix = true;
-			}
 
 			/**	SuffixTable
 			 * Legendary	8 95
@@ -87,23 +80,18 @@ namespace Infusion
 			 * Good			4 05
 			 */
 		    chance = GetChance(qc, false);
-			//Lower chance with ranged weapons
+			//Lower chance with ranged weapons : 70%
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.70f;
 
 			rand = Rand.Range(0, 100);
 			if (rand >= chance)
-			{
-				suffix = InfusionSuffix.None;
 				passSuffix = true;
-			}
 
 			if (passPrefix && passSuffix)
-			{
-				isTried = true;
-				return false;
-			}
+				return;
 
+		    InfusionTier infTier;
 			if (!passPrefix)
 			{
 				/** PrefixTable
@@ -112,14 +100,23 @@ namespace Infusion
 				 * Tier 3		23 + 2 * (qc - 4)
 				 */
 				rand = Rand.Range(0, 100);
-				if (rand <= 23 + 2 * ((int)qc - 4))
-					rand = MathInfusion.Rand(InfusionPrefix.Tier3, InfusionPrefix.End);
-				else if (rand <= 32 - (int)qc + 4)
-					rand = MathInfusion.Rand(InfusionPrefix.Tier2, InfusionPrefix.Tier3);
+				if (rand <= 23 + 2*((int) qc - 4))
+					infTier = InfusionTier.Tier3;
+				else if (rand <= 32 - (int) qc + 4)
+					infTier = InfusionTier.Tier2;
 				else
-					rand = MathInfusion.Rand(InfusionPrefix.Tier1, InfusionPrefix.Tier2);
+					infTier = InfusionTier.Tier1;
 
-				prefix = (InfusionPrefix)rand;
+				InfusionDef preTemp;
+				var tier = infTier;
+				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
+					where t.tier == tier && t.type == InfusionType.Prefix
+					select t).TryRandomElement(out preTemp))
+				{
+					Log.Error("Couldn't find any prefix InfusionDef!");
+					return;
+				}
+				infusions.Prefix = preTemp.defName;
 			}
 
 			if (!passSuffix)
@@ -130,55 +127,63 @@ namespace Infusion
 				 * Tier 3		12 + 2 * (qc - 4)
 				 */
 				rand = Rand.Range(0, 100);
-				if (rand <= 12 + 2 * ((int)qc - 4))
-					rand = MathInfusion.Rand(InfusionSuffix.Tier3, InfusionSuffix.End);
-				else if (rand <= 38 - (int)qc + 4)
-					rand = MathInfusion.Rand(InfusionSuffix.Tier2, InfusionSuffix.Tier3);
+				if (rand <= 23 + 2 * ((int)qc - 4))
+					infTier = InfusionTier.Tier3;
+				else if (rand <= 32 - (int)qc + 4)
+					infTier = InfusionTier.Tier2;
 				else
-					rand = MathInfusion.Rand(InfusionSuffix.Tier1, InfusionSuffix.Tier2);
+					infTier = InfusionTier.Tier1;
 
-				suffix = (InfusionSuffix)rand;
+				InfusionDef preTemp;
+				var tier = infTier;
+				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
+					 where t.tier == tier && t.type == InfusionType.Suffix
+					 select t).TryRandomElement(out preTemp))
+				{
+					Log.Error("Couldn't find any suffix InfusionDef!");
+					return;
+				}
+				infusions.Suffix = preTemp.defName;
 			}
 
 			//For added hit points
 			parent.HitPoints = parent.MaxHitPoints;
 
-		    if (shouldFireMote)
+		    if (shouldThrowMote)
 		    {
-			    var msg = qc.ToString().ToLower() + " ";
+			    var msg = new StringBuilder();
+			    msg.Append(qc.ToString().ToLower() + " ");
 			    if (parent.Stuff != null)
-				    msg += parent.Stuff.LabelAsStuff + " ";
-			    msg += parent.def.label;
+				    msg.Append(parent.Stuff.LabelAsStuff + " ");
+			    msg.Append(parent.def.label);
 				Messages.Message(StaticSet.StringInfusionMessage.Translate(msg));
 				InfusionSound.PlayOneShotOnCamera();
-				MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, new Color(1f, 0.4f, 0f));
+				MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, StaticSet.ColorTier2);
 		    }
-			isTried = true;
-			return true;
-	    }
+			tried = true;
+		}
 
 	    public override void PostSpawnSetup()
 	    {
 		    base.PostSpawnSetup();
 		    SetInfusion(true);
 
-		    if (IsInfused)
+		    if (Infused)
 			    InfusionLabelManager.Register(this);
 	    }
 
 	    public override void PostExposeData()
 	    {
 		    base.PostExposeData();
-			Scribe_Values.LookValue(ref isTried, "isTried", true);
-		    Scribe_Values.LookValue(ref prefix, "prefix", InfusionPrefix.None);
-		    Scribe_Values.LookValue(ref suffix, "suffix", InfusionSuffix.None);
+			Scribe_Values.LookValue(ref tried, "tried", true);
+		    Scribe_Values.LookValue(ref infusions, "infusions", InfusionSet.Empty);
 	    }
 
 	    public override void PostDeSpawn()
 	    {
 		    base.PostDeSpawn();
 
-			if(IsInfused)
+			if(Infused)
 				InfusionLabelManager.DeRegister(this);
 	    }
 
@@ -187,52 +192,21 @@ namespace Infusion
 		    if (other.TryGetComp<CompInfusion>() == null)
 			    return false;
 
-			InfusionSuffix infSuffix;
-		    InfusionPrefix infPrefix;
-		    other.TryGetInfusionPrefix(out infPrefix);
-		    other.TryGetInfusionSuffix(out infSuffix);
+		    InfusionSet otherSet;
+		    other.TryGetInfusions(out otherSet);
 
-		    var flag = infPrefix == prefix && infSuffix == suffix;
-
-		    return flag;
+		    return infusions.Equals(otherSet);
 	    }
 		public override void PostSplitOff(Thing piece)
 		{
 			base.PostSplitOff(piece);
-			piece.TryGetComp<CompInfusion>().isTried = IsTried;
-			piece.TryGetComp<CompInfusion>().prefix = prefix;
-			piece.TryGetComp<CompInfusion>().suffix = suffix;
+			piece.TryGetComp<CompInfusion>().tried = Tried;
+			piece.TryGetComp<CompInfusion>().infusions = Infusions;
 		}
 
 	    public override string GetDescriptionPart()
 	    {
-		    var prePass = prefix == InfusionPrefix.None;
-		    var sufPass = suffix == InfusionSuffix.None;
-
-		    if (prePass && sufPass)
-			    return null;
-
-			var result = new StringBuilder(null);
-		    result.AppendLine(StaticSet.StringInfusionInfo.Translate(parent.GetInfusedLabel(true, false)));
-		    result.AppendLine();
-
-		    if (!prePass)
-		    {
-				result.Append(StaticSet.StringInfusionInfoPrefix.Translate(prefix.GetInfusionLabel()) + " ");
-			    result.AppendLine(StaticSet.StringInfusionInfoPrefixBonus.Translate(prefix.GetInfusionDescription()));
-			}
-		    if (!prePass && !sufPass)
-		    {
-			    result.AppendLine();
-			    result.Append(StaticSet.StringInfusionInfoPreSuffix.Translate(suffix.GetInfusionLabel()) + " ");
-		    }
-		    else if(!sufPass)
-			    result.Append(StaticSet.StringInfusionInfoSuffix.Translate(suffix.GetInfusionLabel()) + " ");
-
-		    if (!sufPass)
-				result.AppendLine(StaticSet.StringInfusionInfoSuffixBonus.Translate(suffix.GetInfusionDescription()));
-
-		    return base.GetDescriptionPart() + result;
+		    return base.GetDescriptionPart() + parent.GetInfusedDescription();
 	    }
 
 	    private static float GetChance(QualityCategory qc, bool isPrefix)

@@ -9,84 +9,77 @@ namespace Infusion
 	{
 		public override void TransformValue(StatRequest req, ref float val)
 		{
-			if (!req.HasThing || req.Thing == null) return;
-			if (req.Def != ThingDef.Named("Human"))
+			if (!req.HasThing || req.Def.defName != "Human")
 				return;
-
+			
 			//Return if the pawn has no weapon
 			var pawn = req.Thing as Pawn;
-			if (pawn == null || pawn.equipment.Primary == null) return;
+			if (pawn == null || pawn.equipment.Primary == null)
+				return;
 
-			InfusionPrefix infPrefix;
-			InfusionSuffix infSuffix;
-			if (pawn.equipment.Primary.TryGetInfusionPrefix(out infPrefix))
+			InfusionSet inf;
+			if (!pawn.equipment.Primary.TryGetInfusions(out inf))
+				return;
+
+			StatMod mod;
+			var stat = notifier.ToStatDef();
+			if (stat == null)
 			{
-				val += StatModOf(infPrefix).offset;
-				if(StatModOf(infPrefix).multiplier != 0)
-					val *= StatModOf(infPrefix).multiplier;
+				Log.ErrorOnce("Could not find notifier's StatDef", 3388123);
+				return;
 			}
-			if (!pawn.equipment.Primary.TryGetInfusionSuffix(out infSuffix)) return;
+			var prefix = inf.Prefix.ToInfusionDef();
+			var suffix = inf.Suffix.ToInfusionDef();
 
-			val += StatModOf(infSuffix).offset;
-			if (StatModOf(infSuffix).multiplier != 0)
-				val *= StatModOf(infSuffix).multiplier;
+			//Return if the worker has no stat specified
+			if (!inf.PassPre && prefix.GetStatValue(stat, out mod))
+			{
+				val += mod.offset;
+				val *= mod.offset;
+			}
+			if (inf.PassSuf || !suffix.GetStatValue(stat, out mod))
+				return;
+
+			val += mod.offset;
+			val *= mod.multiplier;
 		}
 		public override string ExplanationPart(StatRequest req)
 		{
 			if (!req.HasThing)
 				return null;
-			if (req.Def != ThingDef.Named("Human"))
-				return null;
 
+			//Return if the pawn has no weapon
 			var pawn = req.Thing as Pawn;
-			if (pawn == null)
+			if (pawn == null || pawn.def.defName != "Human")
 				return null;
 
-			InfusionPrefix infPrefix;
-			pawn.equipment.Primary.TryGetInfusionPrefix(out infPrefix);
-			InfusionSuffix infSuffix;
-			pawn.equipment.Primary.TryGetInfusionSuffix(out infSuffix);
-			if (infPrefix == InfusionPrefix.None && infSuffix == InfusionSuffix.None)
-				return null;
-
-			return WriteExplanation(req, infPrefix, infSuffix);
+			InfusionSet infusions;
+			return pawn.equipment.Primary.TryGetInfusions(out infusions) ?
+				WriteExplanation(pawn, infusions) :
+				null;
 		}
-		protected override string WriteExplanation(StatRequest req, InfusionPrefix infPrefix, InfusionSuffix infSuffix)
+
+		protected override string WriteExplanationDetail(Thing thing, string val)
 		{
-			var pawn = req.Thing as Pawn;
+			var pawn = thing as Pawn;
 			if (pawn == null)
 				return null;
 
+			StatMod mod;
+			var inf = val.ToInfusionDef();
 			var result = new StringBuilder();
-			result.AppendLine(StaticSet.StringInfusionDescBonus);
+			if (!inf.GetStatValue(notifier.ToStatDef(), out mod)) return null;
 
-			if (infPrefix != InfusionPrefix.None)
+			if (mod.offset != 0)
 			{
-				if (StatModOf(infPrefix).offset != 0)
-				{
-					result.Append("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": ");
-					result.AppendLine((StatModOf(infPrefix).offset > 0 ? "+" : "-") +
-									  StatModOf(infPrefix).offset.ToAbs().ToStringPercent());
-				}
-				if (StatModOf(infPrefix).multiplier != 1)
-				{
-					result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": x" +
-									  StatModOf(infPrefix).multiplier.ToStringPercent());
-				}
+				result.Append("    " + pawn.equipment.Primary.GetInfusedLabel() + ": ");
+				result.Append(mod.offset > 0 ? "+" : "-");
+				result.AppendLine(mod.offset.ToAbs().ToStringPercent());
 			}
-			if (infSuffix == InfusionSuffix.None) return result.ToString();
+			if (mod.multiplier == 1) return result.ToString();
 
-			if (StatModOf(infSuffix).offset != 0)
-			{
-				result.Append("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": ");
-				result.AppendLine((StatModOf(infSuffix).offset > 0 ? "+" : "-") +
-				                  StatModOf(infSuffix).offset.ToAbs().ToStringPercent());
-			}
-			if (StatModOf(infSuffix).multiplier != 1)
-			{
-				result.AppendLine("    " + pawn.equipment.Primary.GetInfusedLabel(false).CapitalizeFirst() + ": x" +
-				                  StatModOf(infSuffix).multiplier.ToStringPercent());
-			}
+			result.Append("    " + pawn.equipment.Primary.GetInfusedLabel() + ": x");
+			result.AppendLine(mod.multiplier.ToStringPercent());
 			return result.ToString();
 		}
 	}
