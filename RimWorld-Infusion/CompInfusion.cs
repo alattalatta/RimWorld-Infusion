@@ -53,6 +53,7 @@ namespace Infusion
 
 	    private void GenerateInfusion(QualityCategory qc, bool shouldThrowMote)
 		{
+			//Chance based pass indicators
 			bool passPrefix = false, passSuffix = false;
 
 			/** PrefixTable
@@ -110,7 +111,10 @@ namespace Infusion
 				InfusionDef preTemp;
 				var tier = infTier;
 				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
-					where t.tier == tier && t.type == InfusionType.Prefix
+					where 
+						t.tier == tier &&
+						t.type == InfusionType.Prefix //&&
+						//(parent.def.IsApparel && t.canInfuseApparel || (parent.def.IsMeleeWeapon || parent.def.IsRangedWeapon) && t.canInfuseWeapons)
 					select t).TryRandomElement(out preTemp))
 				{
 					Log.Error("Couldn't find any prefix InfusionDef!");
@@ -137,7 +141,10 @@ namespace Infusion
 				InfusionDef preTemp;
 				var tier = infTier;
 				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
-					 where t.tier == tier && t.type == InfusionType.Suffix
+					  where
+						 t.tier == tier &&
+						 t.type == InfusionType.Suffix //&&
+						 //(parent.def.IsApparel && t.canInfuseApparel || (parent.def.IsMeleeWeapon || parent.def.IsRangedWeapon) && t.canInfuseWeapons)
 					 select t).TryRandomElement(out preTemp))
 				{
 					Log.Error("Couldn't find any suffix InfusionDef!");

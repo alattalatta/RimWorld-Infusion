@@ -25,13 +25,12 @@ namespace Infusion
 			var stat = notifier.ToStatDef();
 			if (stat == null)
 			{
-				Log.ErrorOnce("Could not find notifier's StatDef", 3388123);
+				Log.ErrorOnce("Could not find notifier's StatDef, which is " + notifier, 3388123);
 				return;
 			}
 			var prefix = inf.Prefix.ToInfusionDef();
 			var suffix = inf.Suffix.ToInfusionDef();
 
-			//Return if the worker has no stat specified
 			if (!inf.PassPre && prefix.GetStatValue(stat, out mod))
 			{
 				val += mod.offset;

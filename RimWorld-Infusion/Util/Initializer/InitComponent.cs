@@ -59,7 +59,7 @@ namespace Infusion
 			//Log.Message("Injected new MapComponent by " + ModName);
 		}
 
-		//Inject every prerequisites to weapon defs.
+		//Inject every prerequisites to defs.
 		private void InjectVarious()
 		{
 			//Access ThingDef database with each def's defName.
@@ -77,7 +77,7 @@ namespace Infusion
 			}
 			foreach (KeyValuePair<string, ThingDef> cur in dictDefsByName)
 			{
-				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon)
+				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon && !cur.Value.IsApparel)
 					continue;
 
 				if (AddCompInfusion(cur.Value))
@@ -127,12 +127,15 @@ namespace Infusion
 		//Inject new ITab_Infusion to given def.
 		private static void InjectITab(ThingDef def)
 		{
-			if (def.inspectorTabs == null) { 
+			if (def.inspectorTabs == null || def.inspectorTabs.Count == 0)
+			{
+ 				Log.Message(ModName + " : Allocating new inspectorTabs to " + def.label);
 				def.inspectorTabs = new List<Type>();
 				def.inspectorTabsResolved = new List<ITab>();
 			}
 			if (def.inspectorTabs.Contains(typeof(ITab_Infusion)))
 				return;
+
 			try
 			{
 				def.inspectorTabs.Add(typeof (ITab_Infusion));

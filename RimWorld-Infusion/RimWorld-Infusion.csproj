@@ -48,6 +48,8 @@
   <ItemGroup>
     <Compile Include="CompInfusion.cs" />
     <Compile Include="ITab_Infusion.cs" />
+    <Compile Include="StatPart_InfusionModifierTemperature.cs" />
+    <Compile Include="StatPart_InfusionWorkerCps.cs" />
     <Compile Include="StatPart_InfusionWorkerTemperature.cs" />
     <Compile Include="ThingWithInfusions.cs" />
     <Compile Include="Util\GenInfusionText.cs" />
