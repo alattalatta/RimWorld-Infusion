@@ -62,11 +62,12 @@
     <Compile Include="Util\InfusionDef.cs" />
     <Compile Include="Util\Gens\GenInfusion.cs" />
     <Compile Include="Util\ETC\MapComponent_InfusionManager.cs" />
+    <Compile Include="Util\InfusionSet.cs" />
     <Compile Include="Util\Initializer\InitComponent.cs" />
     <Compile Include="Util\Initializer\Initializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\ETC\StaticSet.cs" />
-    <Compile Include="Util\Types.cs" />
+    <Compile Include="Util\StatMod.cs" />
     <Compile Include="StatPart_InfusionModifier.cs" />
     <Compile Include="StatPart_InfusionWorker.cs" />
   </ItemGroup>
