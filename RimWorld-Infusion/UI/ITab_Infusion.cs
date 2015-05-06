@@ -81,7 +81,7 @@ namespace Infusion
 			else if (!infs.PassSuf && infs.PassPre)
 				color = sufDef.tier.InfusionColor();
 			else
-				color = MathInfusion.Max(preDef.tier, sufDef.tier).InfusionColor();
+				color = GenInfusionMath.Max(preDef.tier, sufDef.tier).InfusionColor();
 
 			GUI.color = color;
 			return result.ToString();

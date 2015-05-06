@@ -55,11 +55,12 @@
     <Compile Include="StatPart_InfusionWorkerTemperature.cs" />
     <Compile Include="ThingWithInfusions.cs" />
     <Compile Include="Util\ETC\Find.cs" />
-    <Compile Include="Util\GenInfusionColor.cs" />
-    <Compile Include="Util\GenInfusionText.cs" />
+    <Compile Include="Util\Gens\GenInfusionColor.cs" />
+    <Compile Include="Util\Gens\GenInfusionMath.cs" />
+    <Compile Include="Util\Gens\GenInfusionText.cs" />
     <Compile Include="Util\ETC\InfusionLabelManager.cs" />
     <Compile Include="Util\InfusionDef.cs" />
-    <Compile Include="Util\GenInfusion.cs" />
+    <Compile Include="Util\Gens\GenInfusion.cs" />
     <Compile Include="Util\ETC\MapComponent_InfusionManager.cs" />
     <Compile Include="Util\Initializer\InitComponent.cs" />
     <Compile Include="Util\Initializer\Initializer.cs" />

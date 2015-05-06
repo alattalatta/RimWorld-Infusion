@@ -65,7 +65,7 @@ namespace Infusion
 				//When there are both prefix and suffix
 				else
 				{
-					color = MathInfusion.Max(prefix.tier, suffix.tier).InfusionColor();
+					color = GenInfusionMath.Max(prefix.tier, suffix.tier).InfusionColor();
 				}
 				var result = new StringBuilder();
 				if (!inf.PassPre)
