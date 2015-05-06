@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using Infusion.Util;
 using UnityEngine;
 using Verse;
@@ -14,7 +12,7 @@ namespace Infusion
 
 		public override void MapComponentTick()
 		{
-			//Execute every 6 ticks
+			//Execute every 12 ticks
 			var curTick = Find.TickManager.TicksGame;
 			if (curTick - lastTick < 6)
 				return;
@@ -30,22 +28,15 @@ namespace Infusion
 
 		private static void InfuseEquipments()
 		{
-			var targetComps = new List<CompInfusion>();
 			foreach (var current in Find.ListerPawns.AllPawns)
 			{
-				if (current.def != ThingDef.Named("Human"))
+				//If not tool equippable or primary equipment is null, pass
+				if (!current.def.race.ToolUser || current.equipment.Primary == null)
 					continue;
-				if (current.equipment.Primary == null)
-					continue;
-				var compInfusion = current.equipment.Primary.TryGetComp<CompInfusion>();
-				if (compInfusion != null)
-					targetComps.Add(compInfusion);
-			}
-			foreach (var current in targetComps)
-			{
-				if (current.Tried)
-					continue;
-				current.SetInfusion();
+
+				var compInfusion = current.TryGetComp<CompInfusion>();
+				if (compInfusion != null && !compInfusion.Tried)
+					compInfusion.SetInfusion();
 			}
 		}
 		private static void Draw()

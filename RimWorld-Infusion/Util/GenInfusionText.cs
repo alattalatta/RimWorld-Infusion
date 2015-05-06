@@ -10,7 +10,9 @@ namespace Infusion
 	public static class GenInfusionText
 	{
 		private static Dictionary<int, string> infusedLabelDict = new Dictionary<int, string>();
+		private static Dictionary<int, string> infusedITabDict = new Dictionary<int, string>();
 		private const int LabelDictionaryMaxCount = 1000;
+		private const int ITabDictionaryMaxCount = 1000;
 
 		private struct InfusedLabelRequest
 		{
@@ -24,10 +26,10 @@ namespace Infusion
 			{
 				var num1 = 7437233;
 				if (Thing != null)
-					num1 ^= Thing.GetHashCode() * 712431;
+					num1 ^= Thing.GetHashCode()*712433;
 				var num2 = num1 ^ EntDef.GetHashCode() * 345111;
 				if (StuffDef != null)
-					num2 ^= StuffDef.GetHashCode() * 666611;
+					num2 ^= StuffDef.GetHashCode() * 666613;
 				var thingDef = EntDef as ThingDef;
 				if (thingDef == null) return num2;
 
@@ -43,6 +45,22 @@ namespace Infusion
 				if (thingDef.useHitPoints)
 					num2 = num2 ^ HitPoints * 743273 ^ MaxHitPoints * 7437;
 				return num2;
+			}
+		}
+
+		private struct InfusedITabRequest
+		{
+			public string Prefix;
+			public string Suffix;
+
+			public override int GetHashCode()
+			{
+				var num1 = 17;
+				if (Prefix != null)
+					num1 = num1*29 + Prefix.GetHashCode();
+				if (Suffix != null)
+					num1 = num1*29 + Suffix.GetHashCode();
+				return num1;
 			}
 		}
 
@@ -111,6 +129,27 @@ namespace Infusion
 
 		public static string GetInfusedDescriptionITab(this Thing thing)
 		{
+			InfusionSet infs;
+			thing.TryGetInfusions(out infs);
+			var request = new InfusedITabRequest
+			{
+				Prefix = infs.Prefix,
+				Suffix = infs.Suffix
+			};
+
+			var hashCode = request.GetHashCode();
+			string result;
+			if (infusedITabDict.TryGetValue(hashCode, out result)) return result;
+
+			if (infusedITabDict.Count > ITabDictionaryMaxCount)
+				infusedITabDict.Clear();
+			result = thing.NewInfusedDescriptionITab();
+			infusedITabDict.Add(hashCode, result);
+			return result;
+		}
+
+		private static string NewInfusedDescriptionITab(this Thing thing)
+		{
 			InfusionSet inf;
 			if (!thing.TryGetInfusions(out inf))
 				return null;
@@ -137,7 +176,7 @@ namespace Infusion
 					}
 					if (current.Value.multiplier == 1) continue;
 
-					result.Append("     " + current.Value.offset.ToAbs().ToStringPercent());
+					result.Append("     " + current.Value.multiplier.ToAbs().ToStringPercent());
 					result.AppendLine(" " + current.Key.LabelCap);
 				}
 				result.AppendLine();
@@ -163,7 +202,7 @@ namespace Infusion
 				}
 				if (current.Value.multiplier == 1) continue;
 
-				result.Append("     " + current.Value.offset.ToAbs().ToStringPercent());
+				result.Append("     " + current.Value.multiplier.ToAbs().ToStringPercent());
 				result.AppendLine(" " + current.Key.LabelCap);
 			}
 			return result.ToString();

@@ -78,7 +78,7 @@ namespace Infusion
 			}
 			foreach (KeyValuePair<string, ThingDef> cur in dictDefsByName)
 			{
-				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon && !cur.Value.IsApparel)
+				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon)
 					continue;
 
 				if (AddCompInfusion(cur.Value))
@@ -130,7 +130,6 @@ namespace Infusion
 		{
 			if (def.inspectorTabs == null || def.inspectorTabs.Count == 0)
 			{
- 				Log.Message(ModName + " : Allocating new inspectorTabs to " + def.label);
 				def.inspectorTabs = new List<Type>();
 				def.inspectorTabsResolved = new List<ITab>();
 			}

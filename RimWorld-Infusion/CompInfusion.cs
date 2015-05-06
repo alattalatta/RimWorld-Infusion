@@ -17,19 +17,19 @@ namespace Infusion
 
 	    public bool Infused
 	    {
-		    get { return !infusions.Equals(InfusionSet.Empty); }
+		    get { return prefix != null || suffix != null; }
 	    }
 
 		public InfusionSet Infusions
 		{
 			get
 			{
-				return infusions;
+				return new InfusionSet(prefix, suffix);
 			}
 		}
 
 		private bool tried;
-		private InfusionSet infusions = new InfusionSet(null, null);
+	    private string prefix, suffix;
 	    private static readonly SoundDef InfusionSound = SoundDef.Named("Infusion_Infused");
 
 
@@ -48,8 +48,8 @@ namespace Infusion
 				return;
 			}
 
-			infusions = InfusionSet.Empty;
-			tried = true;
+			prefix = null;
+			suffix = null;
 		}
 
 		private static float GetChance(QualityCategory qc, InfusionType type)
@@ -74,15 +74,14 @@ namespace Infusion
 	    private static InfusionTier GetTier(QualityCategory qc, InfusionType type)
 	    {
 		    var rand = Rand.Range(0, 100);
-			//															Pre : Suf
-		    if (rand > (type == InfusionType.Prefix ? 53 + (qc.Int() - 4)*4 : 60 + (qc.Int() - 4)*4))
+			//												   Pre : Suf
+		    if (rand > (type == InfusionType.Prefix ? 50 + (int)qc : 45 + (int)qc))
 			    return InfusionTier.Uncommon;
-		    if (rand > (type == InfusionType.Prefix ? 27 + (qc.Int() - 4)*2 : 35 - (qc.Int() - 4)*2))
+		    if (rand > (type == InfusionType.Prefix ? 22 + (int)qc : 15 + (int)qc))
 			    return InfusionTier.Rare;
-			if (rand > (type == InfusionType.Prefix ?					 13 : 21))
+			if (rand > (type == InfusionType.Prefix ?  9		   : 5))
 			    return InfusionTier.Epic;
-		    // ReSharper disable once ConvertIfStatementToReturnStatement
-			if (rand > (type == InfusionType.Prefix ?  4 - (qc.Int() - 4)*2	: 9 + (qc.Int() - 4)*2))
+			if (rand > (type == InfusionType.Prefix ?  2		   : 1))
 				return InfusionTier.Legendary;
 			return InfusionTier.Artifact;
 	    }
@@ -114,13 +113,10 @@ namespace Infusion
 			if (passPre && passSuf)
 				return;
 
-		    InfusionTier infTier;
 			if (!passPre)
 			{
-				infTier = GetTier(qc, InfusionType.Prefix);
-
 				InfusionDef preTemp;
-				var tier = infTier;
+				var tier = GetTier(qc, InfusionType.Prefix);
 				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
 					where 
 						t.tier == tier &&
@@ -131,15 +127,13 @@ namespace Infusion
 					Log.Error("Couldn't find any prefixed InfusionDef! Tier: " + tier);
 					return;
 				}
-				infusions.Prefix = preTemp.defName;
+				prefix = preTemp.defName;
 			}
 
 			if (!passSuf)
 			{
-				infTier = GetTier(qc, InfusionType.Suffix);
-
 				InfusionDef preTemp;
-				var tier = infTier;
+				var tier = GetTier(qc, InfusionType.Suffix);
 				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
 					  where
 						 t.tier == tier &&
@@ -150,24 +144,22 @@ namespace Infusion
 					Log.Error("Couldn't find any suffixed InfusionDef! Tier: " + tier);
 					return;
 				}
-				infusions.Suffix = preTemp.defName;
+				suffix = preTemp.defName;
 			}
 
 			//For added hit points
 			parent.HitPoints = parent.MaxHitPoints;
 
-		    if (shouldThrowMote)
-		    {
-			    var msg = new StringBuilder();
-			    msg.Append(qc.ToString().ToLower() + " ");
-			    if (parent.Stuff != null)
-				    msg.Append(parent.Stuff.LabelAsStuff + " ");
-			    msg.Append(parent.def.label);
-				Messages.Message(StaticSet.StringInfusionMessage.Translate(msg));
-				InfusionSound.PlayOneShotOnCamera();
-				MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, GenInfusionColor.Legendary);
-		    }
-			tried = true;
+		    if (!shouldThrowMote) return;
+
+		    var msg = new StringBuilder();
+		    msg.Append(qc.ToString().ToLower() + " ");
+		    if (parent.Stuff != null)
+			    msg.Append(parent.Stuff.LabelAsStuff + " ");
+		    msg.Append(parent.def.label);
+		    Messages.Message(StaticSet.StringInfusionMessage.Translate(msg));
+		    InfusionSound.PlayOneShotOnCamera();
+		    MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, GenInfusionColor.Legendary);
 		}
 		/*
 	    public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
@@ -183,7 +175,7 @@ namespace Infusion
 	    {
 		    base.PostSpawnSetup();
 		    SetInfusion(true);
-
+		    tried = true;
 		    if (Infused)
 			    InfusionLabelManager.Register(this);
 	    }
@@ -191,8 +183,9 @@ namespace Infusion
 	    public override void PostExposeData()
 	    {
 		    base.PostExposeData();
-			Scribe_Values.LookValue(ref tried, "tried", true);
-		    Scribe_Values.LookValue(ref infusions, "infusions", InfusionSet.Empty);
+			Scribe_Values.LookValue(ref tried, "tried", false);
+			Scribe_Values.LookValue(ref prefix, "prefix", null);
+			Scribe_Values.LookValue(ref suffix, "suffix", null);
 	    }
 
 	    public override void PostDeSpawn()
@@ -211,18 +204,19 @@ namespace Infusion
 		    InfusionSet otherSet;
 		    other.TryGetInfusions(out otherSet);
 
-		    return infusions.Equals(otherSet);
+		    return Infusions.Equals(otherSet);
 	    }
 		public override void PostSplitOff(Thing piece)
 		{
 			base.PostSplitOff(piece);
 			piece.TryGetComp<CompInfusion>().tried = Tried;
-			piece.TryGetComp<CompInfusion>().infusions = Infusions;
+			piece.TryGetComp<CompInfusion>().prefix = prefix;
+			piece.TryGetComp<CompInfusion>().suffix = suffix;
 		}
 
 	    public override string GetDescriptionPart()
 	    {
-		    return base.GetDescriptionPart() + parent.GetInfusedDescription();
+		    return base.GetDescriptionPart() + parent.GetInfusedDescription() + "\n" + parent.GetInfusedDescriptionITab();
 	    }
     }
 }

@@ -18,13 +18,13 @@ namespace Infusion
 
 			if (mod.offset != 0)
 			{
-				result.Append("    " + pawn.equipment.Primary.GetInfusedLabel() + ": ");
+				result.Append("    " + pawn.equipment.Primary.GetInfusedLabel().CapitalizeFirst() + ": ");
 				result.Append(mod.offset > 0 ? "+" : "-");
 				result.AppendLine(mod.offset.ToAbs() + "c/s");
 			}
 			if (mod.multiplier == 1) return result.ToString();
 
-			result.Append("    " + pawn.equipment.Primary.GetInfusedLabel() + ": x");
+			result.Append("    " + pawn.equipment.Primary.GetInfusedLabel().CapitalizeFirst() + ": x");
 			result.AppendLine(mod.multiplier.ToStringPercent());
 			return result.ToString();
 		}

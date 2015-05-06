@@ -8,7 +8,7 @@ namespace Infusion
 {
 	class ITab_Infusion : ITab
 	{
-		private static readonly Vector2 WinSize = new Vector2(400, 400);
+		private static readonly Vector2 WinSize = new Vector2(400, 550);
 
 		private static CompInfusion SelectedCompInfusion
 		{
