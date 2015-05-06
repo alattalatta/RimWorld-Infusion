@@ -12,9 +12,9 @@ namespace Infusion
 
 		public override void MapComponentTick()
 		{
-			//Execute every 12 ticks
+			//Execute every 8 ticks
 			var curTick = Find.TickManager.TicksGame;
-			if (curTick - lastTick < 6)
+			if (curTick - lastTick < 8)
 				return;
 			lastTick = curTick;
 
@@ -34,7 +34,7 @@ namespace Infusion
 				if (!current.def.race.ToolUser || current.equipment.Primary == null)
 					continue;
 
-				var compInfusion = current.TryGetComp<CompInfusion>();
+				var compInfusion = current.equipment.Primary.TryGetComp<CompInfusion>();
 				if (compInfusion != null && !compInfusion.Tried)
 					compInfusion.SetInfusion();
 			}
