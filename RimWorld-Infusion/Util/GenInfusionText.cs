@@ -109,37 +109,6 @@ namespace Infusion
 			return result.ToString();
 		}
 
-		public static string GetInfusedDescription(this Thing thing)
-		{
-			InfusionSet inf;
-			if (!thing.TryGetInfusions(out inf))
-				return null;
-
-			var result = new StringBuilder(null);
-			result.AppendLine(StaticSet.StringInfusionInfo.Translate(thing.GetInfusedLabel(true, false)));
-			result.AppendLine();
-
-			if (!inf.PassPre)
-			{
-				var prefix = inf.Prefix.ToInfusionDef();
-				result.Append(StaticSet.StringInfusionInfoPrefix.Translate(prefix.label) + " ");
-				result.AppendLine(StaticSet.StringInfusionInfoPrefixBonus.Translate(prefix.description));
-			}
-			var suffix = inf.Suffix.ToInfusionDef();
-			if (!inf.PassPre && !inf.PassSuf)
-			{
-				result.AppendLine();
-				result.Append(StaticSet.StringInfusionInfoPreSuffix.Translate(suffix.label) + " ");
-			}
-			else if (!inf.PassSuf)
-				result.Append(StaticSet.StringInfusionInfoSuffix.Translate(suffix.label) + " ");
-
-			if (!inf.PassSuf)
-				result.AppendLine(StaticSet.StringInfusionInfoSuffixBonus.Translate(suffix.description));
-
-			return result.ToString();
-		}
-
 		public static string GetInfusedDescriptionITab(this Thing thing)
 		{
 			InfusionSet inf;
@@ -150,15 +119,73 @@ namespace Infusion
 			if (!inf.PassPre)
 			{
 				var prefix = inf.Prefix.ToInfusionDef();
-				result.Append(prefix.label.CapitalizeFirst() + ": ");
-				result.AppendLine(prefix.description.CapitalizeFirst() + ".");
+				result.AppendLine("From " + prefix.LabelCap + ":");
+				foreach (KeyValuePair<StatDef, StatMod> current in prefix.stats)
+				{
+					if (current.Value.offset != 0)
+					{
+						result.Append("     " + (current.Value.offset > 0 ? "+" : "-"));
+						if (current.Key == StatDefOf.ComfyTemperatureMax || current.Key == StatDefOf.ComfyTemperatureMin)
+							result.Append(current.Value.offset.ToAbs().ToStringTemperatureOffset());
+						else if (current.Key == StatDefOf.MoveSpeed)
+							result.Append(current.Value.offset.ToAbs() + "c/s");
+						else if (current.Key == StatDefOf.MaxHitPoints)
+							result.Append(current.Value.offset.ToAbs());
+						else
+							result.Append(current.Value.offset.ToAbs().ToStringPercent());
+						result.AppendLine(" " + current.Key.LabelCap);
+					}
+					if (current.Value.multiplier == 1) continue;
+
+					result.Append("     " + current.Value.offset.ToAbs().ToStringPercent());
+					result.AppendLine(" " + current.Key.LabelCap);
+				}
+				result.AppendLine();
 			}
 			if (inf.PassSuf) return result.ToString();
 
 			var suffix = inf.Suffix.ToInfusionDef();
-			result.AppendLine();
-			result.Append(suffix.label.CapitalizeFirst() + ": ");
-			result.AppendLine(suffix.description.CapitalizeFirst() + ".");
+			result.AppendLine("From " + suffix.LabelCap + ":");
+			foreach (KeyValuePair<StatDef, StatMod> current in suffix.stats)
+			{
+				if (current.Value.offset != 0)
+				{
+					result.Append("     " + (current.Value.offset > 0 ? "+" : "-"));
+					if (current.Key == StatDefOf.ComfyTemperatureMax || current.Key == StatDefOf.ComfyTemperatureMin)
+						result.Append(current.Value.offset.ToAbs().ToStringTemperatureOffset());
+					else if (current.Key == StatDefOf.MoveSpeed)
+						result.Append(current.Value.offset.ToAbs() + "c/s");
+					else if (current.Key == StatDefOf.MaxHitPoints)
+						result.Append(current.Value.offset.ToAbs());
+					else
+						result.Append(current.Value.offset.ToAbs().ToStringPercent());
+					result.AppendLine(" " + current.Key.LabelCap);
+				}
+				if (current.Value.multiplier == 1) continue;
+
+				result.Append("     " + current.Value.offset.ToAbs().ToStringPercent());
+				result.AppendLine(" " + current.Key.LabelCap);
+			}
+			return result.ToString();
+		}
+
+		public static string GetInfusedDescription(this Thing thing)
+		{
+			InfusionSet inf;
+			if (!thing.TryGetInfusions(out inf))
+				return null;
+
+			var result = new StringBuilder(null);
+			if (!inf.PassPre)
+			{
+				result.Append("This weapon " + inf.Prefix.ToInfusionDef().description + ".");
+				if (!inf.PassSuf)
+					result.Append(" ");
+			}
+			if (!inf.PassSuf)
+				result.AppendLine(inf.Suffix.ToInfusionDef().description.CapitalizeFirst() + ".");
+			else
+				result.AppendLine();
 
 			return result.ToString();
 		}

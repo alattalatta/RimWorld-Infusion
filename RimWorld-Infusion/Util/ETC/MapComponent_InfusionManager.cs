@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using Infusion.Util;
 using UnityEngine;
 using Verse;
+using Find = Verse.Find;
 
 namespace Infusion
 {
@@ -51,60 +54,28 @@ namespace Infusion
 			if (InfusionLabelManager.Drawee.Count == 0)
 				return;
 
-			Log.Message(InfusionLabelManager.Drawee.Count.ToString());
-
 			foreach (var current in InfusionLabelManager.Drawee)
 			{
-				//We don't have check if inf is Infused or not, as Drawee only has CompInfusion of at least one infusion.
 				var inf = current.Infusions;
 				var prefix = current.Infusions.Prefix.ToInfusionDef();
 				var suffix = current.Infusions.Suffix.ToInfusionDef();
 
-				var color = new Color();
+				Color color;
 				//When there is only suffix
 				if (inf.PassPre)
 				{
-					switch (suffix.tier)
-					{
-						case InfusionTier.Tier1:
-							color = StaticSet.ColorTier1;
-							break;
-						case InfusionTier.Tier2:
-							color = StaticSet.ColorTier2;
-							break;
-						case InfusionTier.Tier3:
-							color = StaticSet.ColorTier3;
-							break;
-					}
+					color = suffix.tier.InfusionColor();
 				}
 				//When there is only prefix
 				else if (inf.PassSuf)
 				{
-					switch (prefix.tier)
-					{
-						case InfusionTier.Tier1:
-							color = StaticSet.ColorTier1;
-							break;
-						case InfusionTier.Tier2:
-							color = StaticSet.ColorTier2;
-							break;
-						case InfusionTier.Tier3:
-							color = StaticSet.ColorTier3;
-							break;
-					}
+					color = prefix.tier.InfusionColor();
 				}
 				//When there are both prefix and suffix
 				else
 				{
-					//Use color of higher tier
-					if (prefix.tier == InfusionTier.Tier3 || suffix.tier == InfusionTier.Tier3)
-						color = StaticSet.ColorTier3;
-					else if (prefix.tier == InfusionTier.Tier2 || suffix.tier == InfusionTier.Tier2)
-						color = StaticSet.ColorTier2;
-					else
-						color = StaticSet.ColorTier1;
+					color = MathInfusion.Max(prefix.tier, suffix.tier).InfusionColor();
 				}
-
 				var result = new StringBuilder();
 				if (!inf.PassPre)
 				{

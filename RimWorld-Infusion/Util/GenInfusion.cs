@@ -33,10 +33,23 @@ namespace Infusion
 		{
 			return defName != null ? DefDatabase<StatDef>.GetNamed(defName) : null;
 		}
+
+		public static int Int(this QualityCategory it)
+		{
+			return (int) it;
+		}
 	}
 
 	public static class MathInfusion
 	{
+		public static InfusionTier Max(InfusionTier a, InfusionTier b)
+		{
+			if (a == InfusionTier.Undefined) return b;
+			if (b == InfusionTier.Undefined) return a;
+
+			return a < b ? b : a;
+		}
+
 		public static float ToAbs(this float f)
 		{
 			return Mathf.Abs(f);

@@ -28,6 +28,7 @@ namespace Infusion
 
 				InjectMapcomp();
 				InjectVarious();
+				Util.Find.Init();
 				Log.Message("Initialized the " + ModName + "mod");
 			}
 			catch (Exception ex)

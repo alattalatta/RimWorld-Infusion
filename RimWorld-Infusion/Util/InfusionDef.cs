@@ -16,9 +16,11 @@ namespace Infusion
 	public enum InfusionTier
 	{
 		Undefined,
-		Tier1,
-		Tier2,
-		Tier3
+		Uncommon,
+		Rare,
+		Epic,
+		Legendary,
+		Artifact
 	}
 
 	public class InfusionDef : Def
@@ -52,10 +54,17 @@ namespace Infusion
 		public override void PostLoad()
 		{
 			base.PostLoad();
+			foreach (KeyValuePair<StatDef, StatMod> current in stats)
+			{
+				if(current.Key == null)
+					Log.Message("StatKey error in infusion " + label);
+				if(current.Value == null)
+					Log.Message("StatMod error in infuison " + label);
+			}
 			if(type == InfusionType.Undefined)
 				Log.Error(defName + ": Infusion has no type! Available values: Preffix, Suffix");
 			if(tier == InfusionTier.Undefined)
-				Log.Error(defName + ": Infusion has no tier! Available values: Tier1, Tier2, Tier3");
+				Log.Error(defName + ": Infusion has no tier! Available values: Uncommon, Rare, Epic, Legendary, Artifact");
 		}
 	}
 }

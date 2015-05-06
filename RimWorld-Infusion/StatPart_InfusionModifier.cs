@@ -31,7 +31,7 @@ namespace Infusion
 				Log.ErrorOnce("Could not find notifier's StatDef, which is " + notifier, 3388123);
 				return;
 			}
-			//"Notifier" will notify below about the actual StatDef it is adjusting, via XML-written notifier string.
+			//"Notifier" will notify below lines about the actual StatDef it is adjusting, via XML-written notifier string.
 			//InfusionSet is also string-based, so we have to find the InfusionDef behind it.
 			var prefix = inf.Prefix.ToInfusionDef();
 			var suffix = inf.Suffix.ToInfusionDef();
@@ -39,7 +39,7 @@ namespace Infusion
 			if (!inf.PassPre && prefix.GetStatValue(stat, out mod))
 			{
 				val += mod.offset;
-				val *= mod.offset;
+				val *= mod.multiplier;
 			}
 			if (inf.PassSuf || !suffix.GetStatValue(stat, out mod))
 				return;

@@ -1,15 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using Verse;
+﻿using Verse;
 
 namespace Infusion
 {
 	public static class StaticSet
 	{
-		public static readonly Color ColorTier1 = new Color(1f, 0.75f, 0);
-		public static readonly Color ColorTier2 = new Color(1f, 0.5f, 0);
-		public static readonly Color ColorTier3 = new Color(1f, 0.25f, 0);
-
 		//Mote
 		public static string StringInfused = "Infused".Translate();
 		

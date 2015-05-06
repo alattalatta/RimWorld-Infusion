@@ -47,11 +47,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompInfusion.cs" />
-    <Compile Include="ITab_Infusion.cs" />
+    <Compile Include="JobDriver_Infuse.cs" />
+    <Compile Include="UI\Dialog_Infusion.cs" />
+    <Compile Include="UI\ITab_Infusion.cs" />
     <Compile Include="StatPart_InfusionModifierTemperature.cs" />
     <Compile Include="StatPart_InfusionWorkerCps.cs" />
     <Compile Include="StatPart_InfusionWorkerTemperature.cs" />
     <Compile Include="ThingWithInfusions.cs" />
+    <Compile Include="Util\ETC\Find.cs" />
+    <Compile Include="Util\GenInfusionColor.cs" />
     <Compile Include="Util\GenInfusionText.cs" />
     <Compile Include="Util\ETC\InfusionLabelManager.cs" />
     <Compile Include="Util\InfusionDef.cs" />

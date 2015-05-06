@@ -34,7 +34,7 @@ namespace Infusion
 			if (!inf.PassPre && prefix.GetStatValue(stat, out mod))
 			{
 				val += mod.offset;
-				val *= mod.offset;
+				val *= mod.multiplier;
 			}
 			if (inf.PassSuf || !suffix.GetStatValue(stat, out mod))
 				return;
