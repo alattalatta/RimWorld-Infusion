@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>D:\1\RimWorld785Win\RimWorld785Win_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.11.5662.35584, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\1\RimWorld902WinDev\RimWorld902WinDev_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -41,17 +42,16 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
-      <HintPath>D:\1\RimWorld785Win\RimWorld785Win_Data\Managed\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\1\RimWorld902WinDev\RimWorld902WinDev_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompInfusion.cs" />
     <Compile Include="JobDriver_Infuse.cs" />
-    <Compile Include="UI\Dialog_Infusion.cs" />
     <Compile Include="UI\ITab_Infusion.cs" />
     <Compile Include="StatPart_InfusionModifierTemperature.cs" />
-    <Compile Include="StatPart_InfusionWorkerCps.cs" />
     <Compile Include="StatPart_InfusionWorkerTemperature.cs" />
     <Compile Include="ThingWithInfusions.cs" />
     <Compile Include="Util\ETC\Find.cs" />

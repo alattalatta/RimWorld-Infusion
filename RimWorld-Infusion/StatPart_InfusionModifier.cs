@@ -14,6 +14,8 @@ namespace Infusion
 		//As StatPart itself has no information about what it's adjusting, we will take a detour.
 		//This string, notifier, has to be written in XML by mod maker.
 		public string notifier; //Important: Must target its parent StatDef!
+		public string offsetSuffix = null;
+		public bool offsetUsePercentage = true;
 
 		public override void TransformValue(StatRequest req, ref float val)
 		{
@@ -58,18 +60,18 @@ namespace Infusion
 				null;
 		}
 
-		protected virtual string WriteExplanation(Thing thing, InfusionSet infusions)
+		protected string WriteExplanation(Thing thing, InfusionSet infusions)
 		{
 			var result = new StringBuilder();
 			result.AppendLine(StaticSet.StringInfusionDescBonus);
 
 			if (!infusions.PassPre)
 			{
-				result.AppendLine(WriteExplanationDetail(thing, infusions.Prefix));
+				result.Append(WriteExplanationDetail(thing, infusions.Prefix));
 			}
 			if (!infusions.PassSuf)
 			{
-				result.AppendLine(WriteExplanationDetail(thing, infusions.Suffix));
+				result.Append(WriteExplanationDetail(thing, infusions.Suffix));
 			}
 			return result.ToString();
 		}
@@ -85,7 +87,12 @@ namespace Infusion
 			{
 				result.Append("    " + inf.label.CapitalizeFirst() + ": ");
 				result.Append(mod.offset > 0 ? "+" : "-");
-				result.AppendLine(mod.offset.ToAbs().ToStringPercent());
+				string offsetValue;
+				if (offsetUsePercentage)
+					offsetValue = mod.offset.ToAbs().ToStringPercent();
+				else
+					offsetValue = mod.offset.ToAbs() + offsetSuffix;
+				result.AppendLine(offsetValue);
 			}
 			if (mod.multiplier == 1) return result.ToString();
 

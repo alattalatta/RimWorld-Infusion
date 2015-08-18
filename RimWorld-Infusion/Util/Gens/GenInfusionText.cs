@@ -14,10 +14,11 @@ namespace Infusion
 		private const int LabelDictionaryMaxCount = 1000;
 		private const int ITabDictionaryMaxCount = 1000;
 
+		/** Hash things. Taken from RimWorld base code. **/
 		private struct InfusedLabelRequest
 		{
 			public Thing Thing;
-			public EntityDef EntDef;
+			public BuildableDef BuildableDef;
 			public ThingDef StuffDef;
 			public int HitPoints;
 			public int MaxHitPoints;
@@ -27,10 +28,10 @@ namespace Infusion
 				var num1 = 7437233;
 				if (Thing != null)
 					num1 ^= Thing.GetHashCode()*712433;
-				var num2 = num1 ^ EntDef.GetHashCode() * 345111;
+				var num2 = num1 ^ BuildableDef.GetHashCode() * 345111;
 				if (StuffDef != null)
 					num2 ^= StuffDef.GetHashCode() * 666613;
-				var thingDef = EntDef as ThingDef;
+				var thingDef = BuildableDef as ThingDef;
 				if (thingDef == null) return num2;
 
 				InfusionSet inf;
@@ -47,7 +48,6 @@ namespace Infusion
 				return num2;
 			}
 		}
-
 		private struct InfusedITabRequest
 		{
 			public string Prefix;
@@ -63,74 +63,80 @@ namespace Infusion
 				return num1;
 			}
 		}
+		/** End of the hash things. **/
 
-		public static string GetInfusedLabel(this Thing thing, bool isStuffed = true, bool isDetailed = true)
+		//Get one of existing infused labels from dictionary.
+		public static string GetInfusedLabel(this Thing _thing, bool _isStuffed = true, bool _isDetailed = true)
 		{
 			var request = new InfusedLabelRequest
 			{
-				EntDef = thing.def,
-				Thing = thing
+				BuildableDef = _thing.def,
+				Thing = _thing
 			};
 
-			if (isStuffed)
-				request.StuffDef = thing.Stuff;
-			if (isDetailed)
+			if (_isStuffed)
+				request.StuffDef = _thing.Stuff;
+			if (_isDetailed)
 			{
-				request.MaxHitPoints = thing.MaxHitPoints;
-				request.HitPoints = thing.HitPoints;
+				request.MaxHitPoints = _thing.MaxHitPoints;
+				request.HitPoints = _thing.HitPoints;
 			}
 
 			var hashCode = request.GetHashCode();
 			string result;
 			if (infusedLabelDict.TryGetValue(hashCode, out result)) return result;
 
+			//Make a new label if there is none that matches.
 			if (infusedLabelDict.Count > LabelDictionaryMaxCount)
 				infusedLabelDict.Clear();
-			result = NewInfusedThingLabel(thing, isStuffed, isDetailed);
+			result = NewInfusedThingLabel(_thing, _isStuffed, _isDetailed);
+			//Save it to the dictionary.
 			infusedLabelDict.Add(hashCode, result);
 			return result;
 		}
 
-		private static string NewInfusedThingLabel(Thing thing, bool isStuffed, bool isDetailed)
+		//Make a new infused label.
+		private static string NewInfusedThingLabel(Thing _thing, bool _isStuffed, bool _isDetailed)
 		{
 			var result = new StringBuilder();
 
 			InfusionSet inf;
-			thing.TryGetInfusions(out inf);
+			_thing.TryGetInfusions(out inf);
 
 			if (!inf.PassPre)
 				result.Append(inf.Prefix.ToInfusionDef().label + " ");
 
 			string thingLabel;
-			if (isStuffed && thing.Stuff != null)
-				thingLabel = thing.Stuff.LabelAsStuff + " " + thing.def.label;
+			if (_isStuffed && _thing.Stuff != null)
+				thingLabel = _thing.Stuff.LabelAsStuff + " " + _thing.def.label;
 			else
-				thingLabel = thing.def.label;
+				thingLabel = _thing.def.label;
 
 			result.Append(!inf.PassSuf
 				? StaticSet.StringInfusionOf.Translate(thingLabel, inf.Suffix.ToInfusionDef().label)
 				: thingLabel);
 
-			if (!isDetailed)
+			if (!_isDetailed)
 				return result.ToString();
 
 			result.Append(" (");
 			QualityCategory qc;
-			if (thing.TryGetQuality(out qc))
+			if (_thing.TryGetQuality(out qc))
 			{
 				result.Append(qc.GetLabelShort());
 			}
 
-			if (!(thing.HitPoints < thing.MaxHitPoints)) return result + ")";
+			if (!(_thing.HitPoints < _thing.MaxHitPoints)) return result + ")";
 
-			result.Append(" " + ((float) thing.HitPoints/thing.MaxHitPoints).ToStringPercent() + ")");
+			result.Append(" " + ((float) _thing.HitPoints/_thing.MaxHitPoints).ToStringPercent() + ")");
 			return result.ToString();
 		}
 
-		public static string GetInfusedDescriptionITab(this Thing thing)
+		//Get one of infusion stat information from dictionary.
+		public static string GetInfusedDescriptionITab(this Thing _thing)
 		{
 			InfusionSet infs;
-			thing.TryGetInfusions(out infs);
+			_thing.TryGetInfusions(out infs);
 			var request = new InfusedITabRequest
 			{
 				Prefix = infs.Prefix,
@@ -141,17 +147,20 @@ namespace Infusion
 			string result;
 			if (infusedITabDict.TryGetValue(hashCode, out result)) return result;
 
+			//Make a new label if there is none that matches.
 			if (infusedITabDict.Count > ITabDictionaryMaxCount)
 				infusedITabDict.Clear();
-			result = thing.NewInfusedDescriptionITab();
+			result = _thing.NewInfusedDescriptionITab();
+			//Save it to the dictionary.
 			infusedITabDict.Add(hashCode, result);
 			return result;
 		}
 
-		private static string NewInfusedDescriptionITab(this Thing thing)
+		//Make a new infusion stat information.
+		private static string NewInfusedDescriptionITab(this Thing _thing)
 		{
 			InfusionSet inf;
-			if (!thing.TryGetInfusions(out inf))
+			if (!_thing.TryGetInfusions(out inf))
 				return null;
 
 			var result = new StringBuilder(null);
@@ -166,12 +175,17 @@ namespace Infusion
 						result.Append("     " + (current.Value.offset > 0 ? "+" : "-"));
 						if (current.Key == StatDefOf.ComfyTemperatureMax || current.Key == StatDefOf.ComfyTemperatureMin)
 							result.Append(current.Value.offset.ToAbs().ToStringTemperatureOffset());
-						else if (current.Key == StatDefOf.MoveSpeed)
-							result.Append(current.Value.offset.ToAbs() + "c/s");
-						else if (current.Key == StatDefOf.MaxHitPoints)
-							result.Append(current.Value.offset.ToAbs());
 						else
-							result.Append(current.Value.offset.ToAbs().ToStringPercent());
+						{
+							var modifier = current.Key.parts.Find(_s => _s is StatPart_InfusionModifier) as StatPart_InfusionModifier;
+							if (modifier != null)
+							{
+								if (modifier.offsetUsePercentage)
+									result.Append(current.Value.offset.ToAbs().ToStringPercent());
+								else
+									result.Append(current.Value.offset.ToAbs() + modifier.offsetSuffix);
+							}
+						}
 						result.AppendLine(" " + current.Key.LabelCap);
 					}
 					if (current.Value.multiplier == 1) continue;
@@ -192,12 +206,17 @@ namespace Infusion
 					result.Append("     " + (current.Value.offset > 0 ? "+" : "-"));
 					if (current.Key == StatDefOf.ComfyTemperatureMax || current.Key == StatDefOf.ComfyTemperatureMin)
 						result.Append(current.Value.offset.ToAbs().ToStringTemperatureOffset());
-					else if (current.Key == StatDefOf.MoveSpeed)
-						result.Append(current.Value.offset.ToAbs() + "c/s");
-					else if (current.Key == StatDefOf.MaxHitPoints)
-						result.Append(current.Value.offset.ToAbs());
 					else
-						result.Append(current.Value.offset.ToAbs().ToStringPercent());
+					{
+						var modifier = current.Key.parts.Find(_s => _s is StatPart_InfusionModifier) as StatPart_InfusionModifier;
+						if (modifier != null)
+						{
+							if (modifier.offsetUsePercentage)
+								result.Append(current.Value.offset.ToAbs().ToStringPercent());
+							else
+								result.Append(current.Value.offset.ToAbs() + modifier.offsetSuffix);
+						}
+					}
 					result.AppendLine(" " + current.Key.LabelCap);
 				}
 				if (current.Value.multiplier == 1) continue;
@@ -208,6 +227,7 @@ namespace Infusion
 			return result.ToString();
 		}
 
+		//Get infusion's defined(XML) description.
 		public static string GetInfusedDescription(this Thing thing)
 		{
 			InfusionSet inf;

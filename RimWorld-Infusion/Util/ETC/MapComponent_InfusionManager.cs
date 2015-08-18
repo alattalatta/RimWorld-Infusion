@@ -36,7 +36,10 @@ namespace Infusion
 
 				var compInfusion = current.equipment.Primary.TryGetComp<CompInfusion>();
 				if (compInfusion != null && !compInfusion.Tried)
+				{
 					compInfusion.SetInfusion();
+					compInfusion.Tried = true;
+				}
 			}
 		}
 		private static void Draw()

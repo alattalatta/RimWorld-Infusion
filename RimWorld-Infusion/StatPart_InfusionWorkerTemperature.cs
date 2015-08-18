@@ -16,6 +16,12 @@ namespace Infusion
 			var result = new StringBuilder();
 			if (!inf.GetStatValue(notifier.ToStatDef(), out mod)) return null;
 
+			if (mod.offset == 0 && mod.multiplier == 1)
+			{
+				result.AppendLine("    " + "None");
+				return result.ToString();
+			}
+
 			if (mod.offset != 0)
 			{
 				result.Append("    " + pawn.equipment.Primary.GetInfusedLabel().CapitalizeFirst() + ": ");

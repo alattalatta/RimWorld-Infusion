@@ -3,7 +3,7 @@ using Verse;
 
 namespace Infusion
 {
-	public class InfusionSet : IEquatable<InfusionSet>, Saveable
+	public class InfusionSet : IEquatable<InfusionSet>, IExposable
 	{
 		public bool Equals(InfusionSet other)
 		{
@@ -12,6 +12,8 @@ namespace Infusion
 			return string.Equals(Prefix, other.Prefix) && string.Equals(Suffix, other.Suffix);
 		}
 
+		//As there was a problem with Scribe_Deep, I didn't have to use this interface.
+		//No reference for now.
 		public void ExposeData()
 		{
 			Scribe_Values.LookValue(ref Prefix, "Prefix", null);
