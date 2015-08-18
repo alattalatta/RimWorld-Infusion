@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompInfusion.cs" />
-    <Compile Include="JobDriver_Infuse.cs" />
     <Compile Include="UI\ITab_Infusion.cs" />
     <Compile Include="StatPart_InfusionModifierTemperature.cs" />
     <Compile Include="StatPart_InfusionWorkerTemperature.cs" />

@@ -5,6 +5,8 @@ using Verse;
 
 namespace Infusion
 {
+	//Worker will change item user's stats.
+
 	public class StatPart_InfusionWorker : StatPart_InfusionModifier
 	{
 		public override void TransformValue(StatRequest req, ref float val)

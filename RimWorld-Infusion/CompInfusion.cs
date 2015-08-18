@@ -27,7 +27,7 @@ namespace Infusion
 	    private static readonly SoundDef InfusionSound = SoundDef.Named("Infusion_Infused");
 
 
-		public void SetInfusion(bool _shouldFireMote = false)
+		public void SetInfusion(bool shouldFireMote = false)
 		{
 			if (Tried)
 				return;
@@ -38,7 +38,7 @@ namespace Infusion
 			var qc = compQuality.Quality;
 			if (qc > QualityCategory.Normal)
 			{
-				GenerateInfusion(qc, _shouldFireMote);
+				GenerateInfusion(qc, shouldFireMote);
 				return;
 			}
 
@@ -52,15 +52,15 @@ namespace Infusion
 			{
 					//									Pre : Suf
 				case QualityCategory.Good:
-					return _type == InfusionType.Prefix ? 40 : 44;
+					return _type == InfusionType.Prefix ? 27 : 33;
 				case QualityCategory.Superior:
-					return _type == InfusionType.Prefix ? 47 : 50;
+					return _type == InfusionType.Prefix ? 36 : 41;
 				case QualityCategory.Excellent:
-					return _type == InfusionType.Prefix ? 58 : 59;
+					return _type == InfusionType.Prefix ? 50 : 59;
 				case QualityCategory.Masterwork:
-					return 77;
+					return _type == InfusionType.Prefix ? 68 : 73;
 				case QualityCategory.Legendary:
-					return _type == InfusionType.Prefix ? 100 : 88;
+					return _type == InfusionType.Prefix ? 72 : 80;
 			}
 			return 0;
 		}
@@ -82,13 +82,15 @@ namespace Infusion
 
 	    private void GenerateInfusion(QualityCategory _qc, bool _shouldThrowMote)
 		{
-			//Chance based pass indicators
 			bool passPre = false, passSuf = false;
 
 		    var chance = GetChance(_qc, InfusionType.Prefix);
-			//Lower chance with ranged weapons : 91%
+			//Lower chance for ranged weapons
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.91f;
+			//Lower chance for apparels
+			else if (parent.def.IsApparel)
+				chance *= 0.83f;
 
 			var rand = Rand.Range(0, 100);
 
@@ -96,9 +98,12 @@ namespace Infusion
 				passPre = true;
 
 		    chance = GetChance(_qc, InfusionType.Suffix);
-			//Lower chance with ranged weapons : 85%
+			//Lower chance for ranged weapons
 			if (parent.def.IsRangedWeapon)
 				chance *= 0.85f;
+			//Lower chance for apparels
+			else if (parent.def.IsApparel)
+				chance *= 0.80f;
 
 			rand = Rand.Range(0, 100);
 			if (rand >= chance)
@@ -111,13 +116,17 @@ namespace Infusion
 			{
 				InfusionDef preTemp;
 				var tier = GetTier(_qc, InfusionType.Prefix);
-				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
+				if (
+					!(
+					from t in DefDatabase<InfusionDef>.AllDefs.ToList()
 					where 
 						t.tier == tier &&
-						t.type == InfusionType.Prefix //&&
-						//(parent.def.IsApparel && t.canInfuseApparel || (parent.def.IsMeleeWeapon || parent.def.IsRangedWeapon) && t.canInfuseWeapons)
-					select t).TryRandomElement(out preTemp))
+						t.type == InfusionType.Prefix &&
+						t.MatchItemType(parent.def)
+					select t
+					).TryRandomElement(out preTemp))
 				{
+					//No infusion available
 					Log.Error("Couldn't find any prefixed InfusionDef! Tier: " + tier);
 					return;
 				}
@@ -128,13 +137,16 @@ namespace Infusion
 			{
 				InfusionDef preTemp;
 				var tier = GetTier(_qc, InfusionType.Suffix);
-				if (!(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
+				if (!
+					(from t in DefDatabase<InfusionDef>.AllDefs.ToList()
 					  where
 						 t.tier == tier &&
-						 t.type == InfusionType.Suffix //&&
-						 //(parent.def.IsApparel && t.canInfuseApparel || (parent.def.IsMeleeWeapon || parent.def.IsRangedWeapon) && t.canInfuseWeapons)
-					 select t).TryRandomElement(out preTemp))
+						 t.type == InfusionType.Suffix &&
+						 t.MatchItemType(parent.def)
+					 select t
+					 ).TryRandomElement(out preTemp))
 				{
+					//No infusion available
 					Log.Error("Couldn't find any suffixed InfusionDef! Tier: " + tier);
 					return;
 				}
@@ -155,15 +167,6 @@ namespace Infusion
 		    InfusionSound.PlayOneShotOnCamera();
 		    MoteThrower.ThrowText(parent.Position.ToVector3Shifted(), StaticSet.StringInfused, GenInfusionColor.Legendary);
 		}
-		/*
-	    public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
-	    {
-		    List<FloatMenuOption> list = base.CompFloatMenuOptions(selPawn).ToList();
-			list.Add(new FloatMenuOption("Try reinfusion...", () => Find.LayerStack.Add(new Dialog_Infusion(selPawn, parent))));
-
-		    return list;
-	    }
-		 */
 
 	    public override void PostSpawnSetup()
 	    {
@@ -193,22 +196,22 @@ namespace Infusion
 				InfusionLabelManager.DeRegister(this);
 	    }
 
-	    public override bool AllowStackWith(Thing _other)
+	    public override bool AllowStackWith(Thing other)
 	    {
-		    if (_other.TryGetComp<CompInfusion>() == null)
+		    if (other.TryGetComp<CompInfusion>() == null)
 			    return false;
 
 		    InfusionSet otherSet;
-		    _other.TryGetInfusions(out otherSet);
+		    other.TryGetInfusions(out otherSet);
 
 		    return Infusions.Equals(otherSet);
 	    }
-		public override void PostSplitOff(Thing _piece)
+		public override void PostSplitOff(Thing piece)
 		{
-			base.PostSplitOff(_piece);
-			_piece.TryGetComp<CompInfusion>().Tried = Tried;
-			_piece.TryGetComp<CompInfusion>().prefix = prefix;
-			_piece.TryGetComp<CompInfusion>().suffix = suffix;
+			base.PostSplitOff(piece);
+			piece.TryGetComp<CompInfusion>().Tried = Tried;
+			piece.TryGetComp<CompInfusion>().prefix = prefix;
+			piece.TryGetComp<CompInfusion>().suffix = suffix;
 		}
 
 	    public override string GetDescriptionPart()

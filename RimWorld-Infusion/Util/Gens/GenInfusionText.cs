@@ -167,7 +167,7 @@ namespace Infusion
 			if (!inf.PassPre)
 			{
 				var prefix = inf.Prefix.ToInfusionDef();
-				result.AppendLine("From " + prefix.LabelCap + ":");
+				result.AppendLine(StaticSet.StringInfusionDescFrom.Translate(prefix.LabelCap));
 				foreach (KeyValuePair<StatDef, StatMod> current in prefix.stats)
 				{
 					if (current.Value.offset != 0)
@@ -198,8 +198,8 @@ namespace Infusion
 			if (inf.PassSuf) return result.ToString();
 
 			var suffix = inf.Suffix.ToInfusionDef();
-			result.AppendLine("From " + suffix.LabelCap + ":");
-			foreach (KeyValuePair<StatDef, StatMod> current in suffix.stats)
+			result.AppendLine(StaticSet.StringInfusionDescFrom.Translate(suffix.LabelCap));
+			foreach (var current in suffix.stats)
 			{
 				if (current.Value.offset != 0)
 				{
@@ -237,7 +237,8 @@ namespace Infusion
 			var result = new StringBuilder(null);
 			if (!inf.PassPre)
 			{
-				result.Append("This weapon " + inf.Prefix.ToInfusionDef().description + ".");
+				var str = thing.def.IsApparel ? StaticSet.StringThisApparel : StaticSet.StringThisWeapon;
+				result.Append(str + " " + inf.Prefix.ToInfusionDef().description + ".");
 				if (!inf.PassSuf)
 					result.Append(" ");
 			}

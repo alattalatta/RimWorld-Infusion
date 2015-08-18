@@ -24,5 +24,15 @@ namespace Infusion
 		 */
 		//Infusion bonuses
 		public static string StringInfusionDescBonus = "InfusionDescBonus".Translate();
+		public static string StringInfusionDescFrom = "InfusionDescFrom";
+
+		/**
+		 * ITab
+		 */
+		public static string StringQuality = "Quality".Translate();
+
+
+		public static string StringThisApparel = "ThisApparel".Translate();
+		public static string StringThisWeapon = "ThisWeapon".Translate();
 	}
 }

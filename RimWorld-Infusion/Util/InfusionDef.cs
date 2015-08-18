@@ -37,8 +37,10 @@ namespace Infusion
 		public InfusionType type = InfusionType.Undefined;
 		public InfusionTier tier = InfusionTier.Undefined;
 
-		//public bool canInfuseApparel = false;
-		//public bool canInfuseWeapons = true;
+		public bool melee = true;
+		public bool ranged = true;
+		public bool apparel = false;
+		//public bool furniture = false;
 
 		/// <summary>
 		/// Get matching StatMod for given stat, from this def. Returns false when none.

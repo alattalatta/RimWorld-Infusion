@@ -23,6 +23,15 @@ namespace Infusion
 			return comp.Infused;
 		}
 
+		public static bool MatchItemType(this InfusionDef iDef, ThingDef tDef)
+		{
+			if (tDef.IsMeleeWeapon)
+				return iDef.melee;
+			if (tDef.IsRangedWeapon)
+				return iDef.ranged;
+			return tDef.IsApparel && iDef.apparel;
+		}
+
 		public static InfusionDef ToInfusionDef(this string defName)
 		{
 			return defName != null ? DefDatabase<InfusionDef>.GetNamed(defName) : null;

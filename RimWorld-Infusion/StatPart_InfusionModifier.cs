@@ -6,6 +6,8 @@ using Verse;
 
 namespace Infusion
 {
+	//Modifier will change item's stats.
+
 	[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 	[SuppressMessage("ReSharper", "InconsistentNaming")]
 	[SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]

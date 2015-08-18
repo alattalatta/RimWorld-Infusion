@@ -44,7 +44,7 @@ namespace Infusion
 			Text.Font = GameFont.Small;
 			QualityCategory qc;
 			SelectedCompInfusion.parent.TryGetQuality(out qc);
-			label = qc.GetLabel().CapitalizeFirst() + " quality ";
+			label = qc.GetLabel().CapitalizeFirst() + " " + StaticSet.StringQuality.Translate() + " ";
 			if (SelectedCompInfusion.parent.Stuff != null)
 				label += SelectedCompInfusion.parent.Stuff.LabelAsStuff + " ";
 			Widgets.Label(rectQuality, label + SelectedCompInfusion.parent.def.label);

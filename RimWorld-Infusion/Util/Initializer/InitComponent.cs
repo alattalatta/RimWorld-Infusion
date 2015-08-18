@@ -76,9 +76,12 @@ namespace Infusion
 			{
 				throw new Exception(ModName + ": Could not access private members");
 			}
-			foreach (KeyValuePair<string, ThingDef> cur in dictDefsByName)
+			foreach (var cur in dictDefsByName)
 			{
-				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon)
+				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon && !cur.Value.IsApparel)
+					continue;
+
+				if (cur.Value.defName == "Apparel_PersonalShield")
 					continue;
 
 				if (AddCompInfusion(cur.Value))
@@ -118,11 +121,13 @@ namespace Infusion
 			return true;
 		}
 
-		//Replace ThingWithComps with ThingWithInfusions.
+		//Replace ThingWithComps with ThingWithInfusions or ApparelWithInfusions.
 		private static void ReplaceClass(ThingDef def)
 		{
 			if (def.thingClass == typeof (ThingWithComps))
 				def.thingClass = typeof (ThingWithInfusions);
+			else if (def.thingClass == typeof (Apparel))
+				def.thingClass = typeof (ApparelWithInfusions);
 		}
 
 		//Inject new ITab_Infusion to given def.
