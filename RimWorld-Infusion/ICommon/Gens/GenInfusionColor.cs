@@ -1,7 +1,7 @@
 ﻿using RimWorld;
 using UnityEngine;
 
-namespace Infusion.Util
+namespace Infusion
 {
 	public static class GenInfusionColor
 	{

@@ -56,7 +56,7 @@ namespace Infusion
 		public override void PostLoad()
 		{
 			base.PostLoad();
-			foreach (KeyValuePair<StatDef, StatMod> current in stats)
+			foreach (var current in stats)
 			{
 				if(current.Key == null)
 					Log.Message("StatKey error in infusion " + label);

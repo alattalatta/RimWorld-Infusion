@@ -1,9 +1,15 @@
-﻿using Verse;
+﻿using System.Linq;
+using Verse;
 
 namespace Infusion
 {
 	public static class StaticSet
 	{
+		public static bool FindModActive(string modName)
+		{
+			return LoadedModManager.LoadedMods.ToList().Exists(s => s.name == modName);
+		}
+
 		//Mote
 		public static string StringInfused = "Infused".Translate();
 		

@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Infusion.Util;
 using UnityEngine;
 using Verse;
 using Find = Verse.Find;
@@ -8,15 +7,15 @@ namespace Infusion
 {
 	class MapComponent_InfusionManager : MapComponent
 	{
-		private int lastTick;
+		private int _lastTick;
 
 		public override void MapComponentTick()
 		{
 			//Execute every 8 ticks
 			var curTick = Find.TickManager.TicksGame;
-			if (curTick - lastTick < 8)
+			if (curTick - _lastTick < 8)
 				return;
-			lastTick = curTick;
+			_lastTick = curTick;
 
 			InfuseEquipments();
 		}
@@ -68,7 +67,7 @@ namespace Infusion
 				//When there are both prefix and suffix
 				else
 				{
-					color = GenInfusionMath.Max(prefix.tier, suffix.tier).InfusionColor();
+					color = MathUtility.Max(prefix.tier, suffix.tier).InfusionColor();
 				}
 				var result = new StringBuilder();
 				if (!inf.PassPre)

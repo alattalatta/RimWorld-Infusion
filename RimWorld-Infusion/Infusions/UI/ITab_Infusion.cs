@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Infusion.Util;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -15,13 +14,10 @@ namespace Infusion
 			get
 			{
 				var thing = Verse.Find.Selector.SingleSelectedThing;
-				return thing != null ? thing.TryGetComp<CompInfusion>() : null;
+				return thing?.TryGetComp<CompInfusion>();
 			}
 		}
-		public override bool IsVisible
-		{
-			get { return SelectedCompInfusion != null && SelectedCompInfusion.Infused; }
-		}
+		public override bool IsVisible => SelectedCompInfusion != null && SelectedCompInfusion.Infused;
 
 		public ITab_Infusion()
 		{
@@ -31,7 +27,7 @@ namespace Infusion
 
 		protected override void FillTab()
 		{
-			//Prefix
+			//Label
 			var rectBase = new Rect(0f, 0f, WinSize.x, WinSize.y).ContractedBy(10f);
 			var rectLabel = rectBase;
 			Text.Font = GameFont.Medium;
@@ -81,7 +77,7 @@ namespace Infusion
 			else if (!infs.PassSuf && infs.PassPre)
 				color = sufDef.tier.InfusionColor();
 			else
-				color = GenInfusionMath.Max(preDef.tier, sufDef.tier).InfusionColor();
+				color = MathUtility.Max(preDef.tier, sufDef.tier).InfusionColor();
 
 			GUI.color = color;
 			return result.ToString();

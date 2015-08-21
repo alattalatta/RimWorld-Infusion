@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using RimWorld;
 using UnityEngine;
@@ -10,43 +11,29 @@ namespace Infusion
 	/// <summary>
 	/// A handler for every injection/replacement.
 	/// </summary>
-	public class InitComponent : MonoBehaviour
+	public class ModInitComponent : MonoBehaviour
 	{
 		private readonly MapComponent_InfusionManager mapComp = new MapComponent_InfusionManager();
-
-		private const string ModName = "LT_Infusion";
+		
 		private const string CompName = "Infusion.MapComponent_InfusionManager";
 		private void OnLevelWasLoaded(int level)
 		{
 			if (level != 1) return;
+			//if (!StaticSet.FindModActive("LT_Infusion") && !StaticSet.FindModActive("LT_Gunparts"))
+				//return;
 
 			try
 			{
 				InfusionLabelManager.ReInit();
-				if (!IsModLoaded())
-					throw new Exception(ModName + " : Mod not loaded");
 
 				InjectMapcomp();
 				InjectVarious();
-				Util.Find.Init();
-				Log.Message("Initialized the " + ModName + "mod");
+				Log.Message("LT: Initialized ICommon");
 			}
 			catch (Exception ex)
 			{
-				Log.Error(ModName + " : Error Initializing mod");
-				Log.Error(ex.ToString());
+				Log.Error("LT: Error Initializing ICommon\n" + ex);
 			}
-		}
-		private static bool IsModLoaded()
-		{
-			foreach (var current in LoadedModManager.LoadedMods)
-			{
-				if (current.name == ModName)
-				{
-					return true;
-				}
-			}
-			return false;
 		}
 
 		//Inject MapComponent_InfusionManager for various infusion handling.
@@ -68,42 +55,38 @@ namespace Infusion
 			var defsByName = typeFromHandle.GetField("defsByName", BindingFlags.Static | BindingFlags.NonPublic);
 			if (defsByName == null)
 			{
-				throw new NullReferenceException(ModName + "defsByName is null");
+				throw new NullReferenceException("LT: defsByName is null");
 			}
 			var valDefsByName = defsByName.GetValue(null);
 			var dictDefsByName = valDefsByName as Dictionary<string, ThingDef>;
 			if (dictDefsByName == null)
 			{
-				throw new Exception(ModName + ": Could not access private members");
+				throw new Exception("LT: Could not access private members");
 			}
-			foreach (var cur in dictDefsByName)
+			foreach (var current in dictDefsByName)
 			{
-				if (!cur.Value.IsMeleeWeapon && !cur.Value.IsRangedWeapon && !cur.Value.IsApparel)
+				if (!current.Value.IsMeleeWeapon && !current.Value.IsRangedWeapon && !current.Value.IsApparel)
 					continue;
 
-				if (cur.Value.defName == "Apparel_PersonalShield")
+				if (current.Value.defName == "Apparel_PersonalShield")
 					continue;
 
-				if (AddCompInfusion(cur.Value))
-				{
-					//We need ITab_Infusion only when the thing has CompInfusion already.
-					InjectITab(cur.Value);
-				}
+				ReplaceClass(current.Value);
+
+				if (AddCompInfusion(current.Value))
+					AddInfusionITab(current.Value);
+
 			}
 			//Log.Message("Injected new ThingComp by " + ModName);
 		}
  
-		//Inject new CompInfusion to given def. Only works when the def has CompQuality.
+
+		//Inject new ThingComp.
 		private static bool AddCompInfusion(ThingDef def)
 		{
 			var qualityExist = false;
 			foreach (var current in def.comps)
 			{
-				//We don't want to add a comp that is already there.
-				if (current.compClass == typeof(CompInfusion))
-				{
-					return true;
-				}
 				//Only add when CompQuality exists. Pass when we already know that it has CompQuality.
 				if (!qualityExist && current.compClass == typeof(CompQuality))
 				{
@@ -117,21 +100,21 @@ namespace Infusion
 			var compProperties = new CompProperties { compClass = typeof(CompInfusion) };
 			def.comps.Add(compProperties);
 
-			ReplaceClass(def);
 			return true;
 		}
 
 		//Replace ThingWithComps with ThingWithInfusions or ApparelWithInfusions.
 		private static void ReplaceClass(ThingDef def)
 		{
-			if (def.thingClass == typeof (ThingWithComps))
+			if (def.IsWeapon && def.thingClass == typeof (ThingWithComps))
 				def.thingClass = typeof (ThingWithInfusions);
-			else if (def.thingClass == typeof (Apparel))
+			else if (def.IsApparel && StaticSet.FindModActive("LT_Infusion") && def.thingClass == typeof (Apparel))
 				def.thingClass = typeof (ApparelWithInfusions);
 		}
 
-		//Inject new ITab_Infusion to given def.
-		private static void InjectITab(ThingDef def)
+
+		//Inject new ITab to given def.
+		private static void AddInfusionITab(ThingDef def)
 		{
 			if (def.inspectorTabs == null || def.inspectorTabs.Count == 0)
 			{
@@ -148,7 +131,7 @@ namespace Infusion
 			}
 			catch (Exception ex)
 			{
-				Log.Warning(ModName + " : Failed to inject an ITab to " + def.label);
+				Log.Warning("LT: Failed to inject an ITab to " + def.label);
 				Log.Warning(ex.ToString());
 			}
 		}

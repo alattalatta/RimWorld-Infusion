@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Infusion;
 
 namespace Infusion
 {
 	public static class InfusionLabelManager
 	{
-		public static List<CompInfusion> Drawee { get; private set; }
+		public static List<CompInfusion> Drawee { get; }
 
 		static InfusionLabelManager()
 		{

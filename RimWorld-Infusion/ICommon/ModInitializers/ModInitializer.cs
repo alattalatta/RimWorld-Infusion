@@ -3,16 +3,16 @@ using Verse;
 
 namespace Infusion
 {
-	public class Initializer : ITab
+	public class ModInitializer : ITab
 	{
 
-		public Initializer()
+		public ModInitializer()
 		{
 			var initter = GameObject.Find("IN_ModInitter");
 			if (initter != null) return;
 
 			initter = new GameObject("IN_ModInitter");
-			initter.AddComponent<InitComponent>();
+			initter.AddComponent<ModInitComponent>();
 			Object.DontDestroyOnLoad(initter);
 		}
 		protected override void FillTab()

@@ -32,9 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=0.11.5662.35584, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Assembly-CSharp, Version=0.12.5707.29311, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\1\RimWorld902WinDev\RimWorld902WinDev_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\1\RimWorld905WinDev\RimWorld905WinDev_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,31 +44,35 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\1\RimWorld902WinDev\RimWorld902WinDev_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>D:\1\RimWorld905WinDev\RimWorld905WinDev_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompInfusion.cs" />
-    <Compile Include="UI\ITab_Infusion.cs" />
-    <Compile Include="StatPart_InfusionModifierTemperature.cs" />
-    <Compile Include="StatPart_InfusionWorkerTemperature.cs" />
-    <Compile Include="ThingWithInfusions.cs" />
-    <Compile Include="Util\ETC\Find.cs" />
-    <Compile Include="Util\Gens\GenInfusionColor.cs" />
-    <Compile Include="Util\Gens\GenInfusionMath.cs" />
-    <Compile Include="Util\Gens\GenInfusionText.cs" />
-    <Compile Include="Util\ETC\InfusionLabelManager.cs" />
-    <Compile Include="Util\InfusionDef.cs" />
-    <Compile Include="Util\Gens\GenInfusion.cs" />
-    <Compile Include="Util\ETC\MapComponent_InfusionManager.cs" />
-    <Compile Include="Util\InfusionSet.cs" />
-    <Compile Include="Util\Initializer\InitComponent.cs" />
-    <Compile Include="Util\Initializer\Initializer.cs" />
+    <Compile Include="Infusions\ApparelWithInfusions.cs" />
+    <Compile Include="Infusions\Comp\CompInfusion.cs" />
+    <Compile Include="Infusions\UI\ITab_Infusion.cs" />
+    <Compile Include="Infusions\StatPart_InfusionModifierTemperature.cs" />
+    <Compile Include="Infusions\StatPart_InfusionWorkerTemperature.cs" />
+    <Compile Include="Infusions\ThingWithInfusions.cs" />
+    <Compile Include="ICommon\Gens\DistanceUtility.cs" />
+    <Compile Include="ICommon\Gens\GenInfusionColor.cs" />
+    <Compile Include="ICommon\Gens\MathUtility.cs" />
+    <Compile Include="ICommon\Gens\TextUtility.cs" />
+    <Compile Include="Infusions\InfusionLabelManager.cs" />
+    <Compile Include="Infusions\InfusionDef.cs" />
+    <Compile Include="ICommon\Gens\GenInfusion.cs" />
+    <Compile Include="Infusions\MapComponent_InfusionManager.cs" />
+    <Compile Include="Infusions\InfusionSet.cs" />
+    <Compile Include="ICommon\ModInitializers\ModInitComponent.cs" />
+    <Compile Include="ICommon\ModInitializers\ModInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Util\ETC\StaticSet.cs" />
-    <Compile Include="Util\StatMod.cs" />
-    <Compile Include="StatPart_InfusionModifier.cs" />
-    <Compile Include="StatPart_InfusionWorker.cs" />
+    <Compile Include="ICommon\StaticSet.cs" />
+    <Compile Include="ICommon\StatMod.cs" />
+    <Compile Include="Infusions\StatPart_InfusionModifier.cs" />
+    <Compile Include="Infusions\StatPart_InfusionWorker.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Infusions\AI\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

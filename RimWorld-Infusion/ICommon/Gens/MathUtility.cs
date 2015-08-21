@@ -2,7 +2,7 @@
 
 namespace Infusion
 {
-	public static class GenInfusionMath
+	public static class MathUtility
 	{
 		public static InfusionTier Max(InfusionTier a, InfusionTier b)
 		{

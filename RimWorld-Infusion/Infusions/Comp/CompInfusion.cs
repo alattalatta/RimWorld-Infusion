@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Text;
-using Infusion.Util;
 using RimWorld;
 using Verse;
 using Verse.Sound;
@@ -9,23 +8,16 @@ namespace Infusion
 {
     public class CompInfusion : ThingComp
     {
-	    public bool Infused
-	    {
-		    get { return prefix != null || suffix != null; }
-	    }
+	    public bool Infused => _prefix != null || _suffix != null;
 
-		public InfusionSet Infusions
-		{
-			get
-			{
-				return new InfusionSet(prefix, suffix);
-			}
-		}
+	    public InfusionSet Infusions => new InfusionSet(_prefix, _suffix);
 
+	    //Did we tried to infuse this item?
 		public bool Tried;
-	    private string prefix, suffix;
-	    private static readonly SoundDef InfusionSound = SoundDef.Named("Infusion_Infused");
 
+	    private string _prefix, _suffix;
+
+		private static readonly SoundDef InfusionSound = SoundDef.Named("Infusion_Infused");
 
 		public void SetInfusion(bool shouldFireMote = false)
 		{
@@ -42,74 +34,76 @@ namespace Infusion
 				return;
 			}
 
-			prefix = null;
-			suffix = null;
+			_prefix = null;
+			_suffix = null;
 		}
 
-		private static float GetChance(QualityCategory _qc, InfusionType _type)
+		private float GetChance(QualityCategory qc, InfusionType type)
 		{
-			switch (_qc)
+			float result;
+			switch (qc)
 			{
-					//									Pre : Suf
+					//									  Pre : Suf
 				case QualityCategory.Good:
-					return _type == InfusionType.Prefix ? 27 : 33;
+					result = type == InfusionType.Prefix ? 27 : 33;
+					break;
 				case QualityCategory.Superior:
-					return _type == InfusionType.Prefix ? 36 : 41;
+					result = type == InfusionType.Prefix ? 36 : 41;
+					break;
 				case QualityCategory.Excellent:
-					return _type == InfusionType.Prefix ? 50 : 59;
+					result = type == InfusionType.Prefix ? 50 : 59;
+					break;
 				case QualityCategory.Masterwork:
-					return _type == InfusionType.Prefix ? 68 : 73;
+					result = type == InfusionType.Prefix ? 68 : 73;
+					break;
 				case QualityCategory.Legendary:
-					return _type == InfusionType.Prefix ? 72 : 80;
+					result = type == InfusionType.Prefix ? 72 : 80;
+					break;
+				default:
+					result = 0;
+					break;
 			}
-			return 0;
+			if (parent.def.IsRangedWeapon)
+				result *= 0.90f;
+			else if (parent.def.IsApparel)
+				result *= 0.80f;
+
+			return result;
 		}
 
-	    private static InfusionTier GetTier(QualityCategory _qc, InfusionType _type)
+	    private static InfusionTier GetTier(QualityCategory qc, InfusionType type)
 	    {
 		    var rand = Rand.Range(0, 100);
 			//												   Pre : Suf
-		    if (rand > (_type == InfusionType.Prefix ? 48 + (int)_qc : 43 + (int)_qc))
+		    if (rand > (type == InfusionType.Prefix ? 48 + (int)qc : 43 + (int)qc))
 			    return InfusionTier.Uncommon;
-		    if (rand > (_type == InfusionType.Prefix ? 19 + (int)_qc : 13 + (int)_qc))
+		    if (rand > (type == InfusionType.Prefix ? 19 + (int)qc : 13 + (int)qc))
 			    return InfusionTier.Rare;
-			if (rand > (_type == InfusionType.Prefix ?  6		   : 4))
+			if (rand > (type == InfusionType.Prefix ?  6		   : 4))
 			    return InfusionTier.Epic;
-			if (rand > (_type == InfusionType.Prefix ?  2		   : 1))
+			if (rand > (type == InfusionType.Prefix ?  2		   : 1))
 				return InfusionTier.Legendary;
 			return InfusionTier.Artifact;
 	    }
 
-	    private void GenerateInfusion(QualityCategory _qc, bool _shouldThrowMote)
+	    private void GenerateInfusion(QualityCategory _qc, bool shouldThrowMote)
 		{
 			bool passPre = false, passSuf = false;
 
 		    var chance = GetChance(_qc, InfusionType.Prefix);
-			//Lower chance for ranged weapons
-			if (parent.def.IsRangedWeapon)
-				chance *= 0.91f;
-			//Lower chance for apparels
-			else if (parent.def.IsApparel)
-				chance *= 0.83f;
-
 			var rand = Rand.Range(0, 100);
 
 			if (rand >= chance)
 				passPre = true;
 
 		    chance = GetChance(_qc, InfusionType.Suffix);
-			//Lower chance for ranged weapons
-			if (parent.def.IsRangedWeapon)
-				chance *= 0.85f;
-			//Lower chance for apparels
-			else if (parent.def.IsApparel)
-				chance *= 0.80f;
-
 			rand = Rand.Range(0, 100);
+
 			if (rand >= chance)
 				passSuf = true;
 
 			if (passPre && passSuf)
+				//None has made this far
 				return;
 
 			if (!passPre)
@@ -126,11 +120,11 @@ namespace Infusion
 					select t
 					).TryRandomElement(out preTemp))
 				{
-					//No infusion available
-					Log.Error("Couldn't find any prefixed InfusionDef! Tier: " + tier);
-					return;
+					//No infusion available from defs
+					Log.Warning("Couldn't find any prefixed InfusionDef! Tier: " + tier);
+					shouldThrowMote = false;
 				}
-				prefix = preTemp.defName;
+				_prefix = preTemp.defName;
 			}
 
 			if (!passSuf)
@@ -146,17 +140,17 @@ namespace Infusion
 					 select t
 					 ).TryRandomElement(out preTemp))
 				{
-					//No infusion available
-					Log.Error("Couldn't find any suffixed InfusionDef! Tier: " + tier);
-					return;
+					//No infusion available from defs
+					Log.Warning("Couldn't find any suffixed InfusionDef! Tier: " + tier);
+					shouldThrowMote = false;
 				}
-				suffix = preTemp.defName;
+				_suffix = preTemp.defName;
 			}
 
-			//For added hit points
+			//For additional hit points
 			parent.HitPoints = parent.MaxHitPoints;
 
-		    if (!_shouldThrowMote) return;
+		    if (!shouldThrowMote) return;
 
 		    var msg = new StringBuilder();
 		    msg.Append(_qc.ToString().ToLower() + " ");
@@ -184,8 +178,8 @@ namespace Infusion
 			//Not using Scribe_Deep with a InfusionSet; instead, using individual strings: prefix, suffix.
 			//See InfusionSet's ExposeDate() for a reason.
 			Scribe_Values.LookValue(ref Tried, "tried", false);
-			Scribe_Values.LookValue(ref prefix, "prefix", null);
-			Scribe_Values.LookValue(ref suffix, "suffix", null);
+			Scribe_Values.LookValue(ref _prefix, "prefix", null);
+			Scribe_Values.LookValue(ref _suffix, "suffix", null);
 	    }
 
 	    public override void PostDeSpawn()
@@ -210,8 +204,8 @@ namespace Infusion
 		{
 			base.PostSplitOff(piece);
 			piece.TryGetComp<CompInfusion>().Tried = Tried;
-			piece.TryGetComp<CompInfusion>().prefix = prefix;
-			piece.TryGetComp<CompInfusion>().suffix = suffix;
+			piece.TryGetComp<CompInfusion>()._prefix = _prefix;
+			piece.TryGetComp<CompInfusion>()._suffix = _suffix;
 		}
 
 	    public override string GetDescriptionPart()

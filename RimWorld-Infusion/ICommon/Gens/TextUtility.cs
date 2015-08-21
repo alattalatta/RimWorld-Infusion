@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using RimWorld;
@@ -10,9 +11,7 @@ namespace Infusion
 	public static class GenInfusionText
 	{
 		private static Dictionary<int, string> infusedLabelDict = new Dictionary<int, string>();
-		private static Dictionary<int, string> infusedITabDict = new Dictionary<int, string>();
 		private const int LabelDictionaryMaxCount = 1000;
-		private const int ITabDictionaryMaxCount = 1000;
 
 		/** Hash things. Taken from RimWorld base code. **/
 		private struct InfusedLabelRequest
@@ -46,21 +45,6 @@ namespace Infusion
 				if (thingDef.useHitPoints)
 					num2 = num2 ^ HitPoints * 743273 ^ MaxHitPoints * 7437;
 				return num2;
-			}
-		}
-		private struct InfusedITabRequest
-		{
-			public string Prefix;
-			public string Suffix;
-
-			public override int GetHashCode()
-			{
-				var num1 = 17;
-				if (Prefix != null)
-					num1 = num1*29 + Prefix.GetHashCode();
-				if (Suffix != null)
-					num1 = num1*29 + Suffix.GetHashCode();
-				return num1;
 			}
 		}
 		/** End of the hash things. **/
@@ -132,35 +116,11 @@ namespace Infusion
 			return result.ToString();
 		}
 
-		//Get one of infusion stat information from dictionary.
-		public static string GetInfusedDescriptionITab(this Thing _thing)
-		{
-			InfusionSet infs;
-			_thing.TryGetInfusions(out infs);
-			var request = new InfusedITabRequest
-			{
-				Prefix = infs.Prefix,
-				Suffix = infs.Suffix
-			};
-
-			var hashCode = request.GetHashCode();
-			string result;
-			if (infusedITabDict.TryGetValue(hashCode, out result)) return result;
-
-			//Make a new label if there is none that matches.
-			if (infusedITabDict.Count > ITabDictionaryMaxCount)
-				infusedITabDict.Clear();
-			result = _thing.NewInfusedDescriptionITab();
-			//Save it to the dictionary.
-			infusedITabDict.Add(hashCode, result);
-			return result;
-		}
-
 		//Make a new infusion stat information.
-		private static string NewInfusedDescriptionITab(this Thing _thing)
+		public static string GetInfusedDescriptionITab(this Thing thing)
 		{
 			InfusionSet inf;
-			if (!_thing.TryGetInfusions(out inf))
+			if (!thing.TryGetInfusions(out inf))
 				return null;
 
 			var result = new StringBuilder(null);
@@ -168,9 +128,9 @@ namespace Infusion
 			{
 				var prefix = inf.Prefix.ToInfusionDef();
 				result.AppendLine(StaticSet.StringInfusionDescFrom.Translate(prefix.LabelCap));
-				foreach (KeyValuePair<StatDef, StatMod> current in prefix.stats)
+				foreach (var current in prefix.stats)
 				{
-					if (current.Value.offset != 0)
+					if (Math.Abs(current.Value.offset) > 0.001f)
 					{
 						result.Append("     " + (current.Value.offset > 0 ? "+" : "-"));
 						if (current.Key == StatDefOf.ComfyTemperatureMax || current.Key == StatDefOf.ComfyTemperatureMin)
@@ -188,7 +148,7 @@ namespace Infusion
 						}
 						result.AppendLine(" " + current.Key.LabelCap);
 					}
-					if (current.Value.multiplier == 1) continue;
+					if (Math.Abs(current.Value.multiplier - 1) < 0.001f) continue;
 
 					result.Append("     " + current.Value.multiplier.ToAbs().ToStringPercent());
 					result.AppendLine(" " + current.Key.LabelCap);
@@ -201,7 +161,7 @@ namespace Infusion
 			result.AppendLine(StaticSet.StringInfusionDescFrom.Translate(suffix.LabelCap));
 			foreach (var current in suffix.stats)
 			{
-				if (current.Value.offset != 0)
+				if (Math.Abs(current.Value.offset) > 0.001f)
 				{
 					result.Append("     " + (current.Value.offset > 0 ? "+" : "-"));
 					if (current.Key == StatDefOf.ComfyTemperatureMax || current.Key == StatDefOf.ComfyTemperatureMin)
@@ -219,7 +179,7 @@ namespace Infusion
 					}
 					result.AppendLine(" " + current.Key.LabelCap);
 				}
-				if (current.Value.multiplier == 1) continue;
+				if (Math.Abs(current.Value.multiplier - 1) < 0.001f) continue;
 
 				result.Append("     " + current.Value.multiplier.ToAbs().ToStringPercent());
 				result.AppendLine(" " + current.Key.LabelCap);
