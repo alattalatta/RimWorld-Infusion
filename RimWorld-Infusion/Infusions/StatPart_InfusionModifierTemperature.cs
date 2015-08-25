@@ -5,7 +5,7 @@ namespace Infusion
 {
 	public class StatPart_InfusionModifierTemperature : StatPart_InfusionModifier
 	{
-		protected override string WriteExplanationDetail(Thing thing, string val)
+		protected override string WriteExplanationDetail(Thing infusedThing, string val)
 		{
 			StatMod mod;
 			var inf = val.ToInfusionDef();

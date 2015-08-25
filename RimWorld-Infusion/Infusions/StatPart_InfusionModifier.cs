@@ -78,7 +78,7 @@ namespace Infusion
 			return result.ToString();
 		}
 
-		protected virtual string WriteExplanationDetail(Thing thing, string val)
+		protected virtual string WriteExplanationDetail(Thing infusedThing, string val)
 		{
 			StatMod mod;
 			var inf = val.ToInfusionDef();
