@@ -1,60 +1,79 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using UnityEngine;
 using Verse;
-using Find = Verse.Find;
 
 namespace Infusion
 {
     class MapComponent_InfusionManager : MapComponent
     {
         private int lastTick;
+        private bool welfare = true;
 
         public override void MapComponentTick()
         {
+            if ( welfare == false )
+                return;
+
             //Execute every 12 ticks
             var curTick = Find.TickManager.TicksGame;
             if (curTick - lastTick < 12)
                 return;
-            lastTick = curTick;
 
-            InfuseEquipments();
+            try
+            {
+                lastTick = curTick;
+
+                FindAndInfuseEquipments();
+            }
+            catch ( Exception e )
+            {
+                Log.Message( "LT-IN: InfusionManager met error. Hibernating." );
+                Log.Error( e.ToString() );
+                welfare = false;
+            }
         }
         public override void MapComponentOnGUI()
         {
-            base.MapComponentOnGUI();
             Draw();
         }
 
         //Infuse items of raiders and visitors, etc
-        private static void InfuseEquipments()
+        private static void FindAndInfuseEquipments()
         {
-            foreach (var current in Find.ListerPawns.AllPawns)
+            foreach (var pawn in Find.ListerPawns.AllPawns)
             {
-                //If not tool equippable, pass
-                if (!current.def.race.ToolUser)
+                // No humanlike neither mechanoid, pass
+                if (!pawn.def.race.Humanlike && !pawn.def.race.mechanoid)
                     continue;
 
                 CompInfusion compInfusion;
 
                 //Pawn has primary
-                if (current.equipment.Primary != null)
+                if (pawn.equipment.Primary != null)
                 {
-                    compInfusion = current.equipment.Primary.TryGetComp<CompInfusion>();
+                    compInfusion = pawn.equipment.Primary.TryGetComp<CompInfusion>();
                     if (compInfusion != null && !compInfusion.Tried)
                     {
+#if DEBUG
+                        Log.Message("Infusing: " + pawn + " " + pawn.equipment.Primary);
+#endif
                         compInfusion.SetInfusion();
                         compInfusion.Tried = true;
                     }
                 }
 
                 //Pawn has apparel
-                if ( current.apparel.WornApparelCount != 0 )
+                if ( pawn.apparel.WornApparelCount != 0 )
                 {
-                    foreach ( var curApparel in current.apparel.WornApparel )
+                    foreach ( var curApparel in pawn.apparel.WornApparel )
                     {
                         compInfusion = curApparel.TryGetComp< CompInfusion >();
                         if ( compInfusion != null && !compInfusion.Tried )
                         {
+#if DEBUG
+                            Log.Message("Infusing: " + pawn + " " + curApparel);
+#endif
                             compInfusion.SetInfusion();
                             compInfusion.Tried = true;
                         }

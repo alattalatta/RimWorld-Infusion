@@ -2,10 +2,10 @@
 
 namespace Infusion
 {
-	[SuppressMessage("ReSharper", "InconsistentNaming")]
-	public class StatMod
-	{
-		public float offset = 0;
-		public float multiplier = 1;
-	}
+    [SuppressMessage( "ReSharper", "InconsistentNaming" )]
+    public class StatMod
+    {
+        public float offset = 0;
+        public float multiplier = 1;
+    }
 }
