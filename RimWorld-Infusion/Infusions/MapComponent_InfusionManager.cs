@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace Infusion
 {
-    class MapComponent_InfusionManager : MapComponent
+    public class MapComponent_InfusionManager : MapComponent
     {
-        private int lastTick;
+        private static HashSet<TradeShip> shipDict = new HashSet< TradeShip >(); 
         private bool welfare = true;
 
         public override void MapComponentTick()
@@ -16,19 +20,17 @@ namespace Infusion
                 return;
 
             //Execute every 12 ticks
-            var curTick = Find.TickManager.TicksGame;
-            if (curTick - lastTick < 12)
+            if (Find.TickManager.TicksGame%12 != 0)
                 return;
 
             try
             {
-                lastTick = curTick;
-
-                FindAndInfuseEquipments();
+                InfuseEquipmentsOnMap();
+                InfuseTraderStock();
             }
             catch ( Exception e )
             {
-                Log.Message( "LT-IN: InfusionManager met error. Hibernating." );
+                Log.Warning( "LT-IN: InfusionManager met error. Hibernating." );
                 Log.Error( e.ToString() );
                 welfare = false;
             }
@@ -39,7 +41,7 @@ namespace Infusion
         }
 
         //Infuse items of raiders and visitors, etc
-        private static void FindAndInfuseEquipments()
+        private static void InfuseEquipmentsOnMap()
         {
             foreach (var pawn in Find.ListerPawns.AllPawns)
             {
@@ -47,40 +49,93 @@ namespace Infusion
                 if (!pawn.def.race.Humanlike && !pawn.def.race.mechanoid)
                     continue;
 
-                CompInfusion compInfusion;
-
-                //Pawn has primary
-                if (pawn.equipment.Primary != null)
-                {
-                    compInfusion = pawn.equipment.Primary.TryGetComp<CompInfusion>();
-                    if (compInfusion != null && !compInfusion.Tried)
-                    {
-#if DEBUG
-                        Log.Message("Infusing: " + pawn + " " + pawn.equipment.Primary);
-#endif
-                        compInfusion.SetInfusion();
-                        compInfusion.Tried = true;
-                    }
-                }
-
-                //Pawn has apparel
-                if ( pawn.apparel.WornApparelCount != 0 )
-                {
-                    foreach ( var curApparel in pawn.apparel.WornApparel )
-                    {
-                        compInfusion = curApparel.TryGetComp< CompInfusion >();
-                        if ( compInfusion != null && !compInfusion.Tried )
-                        {
-#if DEBUG
-                            Log.Message("Infusing: " + pawn + " " + curApparel);
-#endif
-                            compInfusion.SetInfusion();
-                            compInfusion.Tried = true;
-                        }
-                    }
-                }
+                InfuseWeapon( pawn );
+                InfuseApparels( pawn );
             }
         }
+
+        private static void InfuseWeapon(Pawn pawn)
+        {
+            //Pawn has primary
+            var compInfusion = pawn.equipment.Primary?.TryGetComp<CompInfusion>();
+            if ( compInfusion == null || compInfusion.tried )
+            {
+                return;
+            }
+#if DEBUG
+            Log.Message("Infusing: " + pawn + " " + pawn.equipment.Primary);
+#endif
+            compInfusion.SetInfusion();
+            compInfusion.tried = true;
+        }
+        private static void InfuseApparels( Pawn pawn )
+        {
+            //Pawn has apparel
+            if ( pawn.apparel.WornApparelCount == 0 )
+            {
+                return;
+            }
+
+            foreach ( var curApparel in pawn.apparel.WornApparel )
+            {
+                var compInfusion = curApparel.TryGetComp<CompInfusion>();
+                if ( compInfusion == null || compInfusion.tried )
+                {
+                    continue;
+                }
+#if DEBUG
+                Log.Message("Infusing: " + pawn + " " + curApparel);
+#endif
+                compInfusion.SetInfusion();
+                compInfusion.tried = true;
+            }
+        }
+        private static void InfuseTraderStock()
+        {
+            var ships = Find.PassingShipManager.passingShips;
+            if ( !ships.Any() )
+                return;
+
+            foreach ( var ship in ships.Cast<TradeShip>() )
+            {
+                if ( shipDict.Contains( ship ) )
+                    continue;
+
+                Log.Message( ship.FullTitle );
+
+                var field = typeof(TradeShip).GetField( "things", BindingFlags.NonPublic | BindingFlags.Instance);
+                if ( field == null )
+                {
+#if DEBUG
+                    Log.Error("LT-IN: Could not get field from trader " + ship.name);
+#endif
+                    continue;
+                }
+
+                var stock = field.GetValue( ship ) as List< Thing >;
+                if ( stock == null )
+                {
+#if DEBUG
+                    Log.Error("LT-IN: Could not get value from field");
+#endif
+                    continue;
+                }
+
+                foreach ( var current in stock )
+                {
+                    var compInfusion = current.TryGetComp< CompInfusion >();
+                    if ( compInfusion == null || compInfusion.tried )
+                        continue;
+                    
+                    compInfusion.SetInfusion(  );
+                }
+                if(shipDict.Count > 5)
+                    shipDict.Clear();
+
+                shipDict.Add(ship);
+            }
+        }
+
         //Draw infusion label on map
         private static void Draw()
         {

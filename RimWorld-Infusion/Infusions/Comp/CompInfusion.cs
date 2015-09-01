@@ -8,38 +8,42 @@ namespace Infusion
 {
     public class CompInfusion : ThingComp
     {
-        public bool Infused => _prefix != null || _suffix != null;
+        public bool Infused => prefix != null || suffix != null;
 
-        public InfusionSet Infusions => new InfusionSet( _prefix, _suffix );
+        public InfusionSet Infusions => new InfusionSet( prefix, suffix );
 
         //Did we tried to infuse this item?
-        public bool Tried;
+        public bool tried;
 
-        private string _prefix, _suffix;
+        private string prefix, suffix;
 
         private static readonly SoundDef InfusionSound = SoundDef.Named( "Infusion_Infused" );
 
         public void SetInfusion( bool shouldFireMote = false )
         {
-            if ( Tried )
+            if ( tried )
             {
                 return;
             }
             var compQuality = parent.GetComp< CompQuality >();
             if ( compQuality == null )
             {
+                tried = true;
                 return;
             }
 
             var qc = compQuality.Quality;
-            if ( qc > QualityCategory.Normal )
+            if ( qc <= QualityCategory.Normal )
+            {
+                prefix = null;
+                suffix = null;
+                tried = true;
+            }
+            else
             {
                 GenerateInfusion( qc, shouldFireMote );
-                return;
+                tried = true;
             }
-
-            _prefix = null;
-            _suffix = null;
         }
 
         private float GetChance( QualityCategory qc, InfusionType type )
@@ -146,7 +150,7 @@ namespace Infusion
                     Log.Warning( "Couldn't find any prefixed InfusionDef! Tier: " + tier );
                     shouldThrowMote = false;
                 }
-                _prefix = preTemp.defName;
+                prefix = preTemp.defName;
             }
 
             if ( !passSuf )
@@ -166,7 +170,7 @@ namespace Infusion
                     Log.Warning( "Couldn't find any suffixed InfusionDef! Tier: " + tier );
                     shouldThrowMote = false;
                 }
-                _suffix = preTemp.defName;
+                suffix = preTemp.defName;
             }
 
             //For additional hit points
@@ -194,7 +198,6 @@ namespace Infusion
         {
             base.PostSpawnSetup();
             SetInfusion( true );
-            Tried = true;
             if ( Infused )
             {
                 InfusionLabelManager.Register( this );
@@ -205,9 +208,9 @@ namespace Infusion
         {
             base.PostExposeData();
             
-            Scribe_Values.LookValue( ref Tried, "tried", false );
-            Scribe_Values.LookValue( ref _prefix, "prefix", null );
-            Scribe_Values.LookValue( ref _suffix, "suffix", null );
+            Scribe_Values.LookValue( ref tried, "tried", false );
+            Scribe_Values.LookValue( ref prefix, "prefix", null );
+            Scribe_Values.LookValue( ref suffix, "suffix", null );
         }
 
         public override void PostDeSpawn()
@@ -236,9 +239,9 @@ namespace Infusion
         public override void PostSplitOff( Thing piece )
         {
             base.PostSplitOff( piece );
-            piece.TryGetComp< CompInfusion >().Tried = Tried;
-            piece.TryGetComp< CompInfusion >()._prefix = _prefix;
-            piece.TryGetComp< CompInfusion >()._suffix = _suffix;
+            piece.TryGetComp< CompInfusion >().tried = tried;
+            piece.TryGetComp< CompInfusion >().prefix = prefix;
+            piece.TryGetComp< CompInfusion >().suffix = suffix;
         }
 
         public override string GetDescriptionPart()
