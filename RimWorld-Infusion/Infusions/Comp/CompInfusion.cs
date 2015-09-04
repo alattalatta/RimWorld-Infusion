@@ -37,13 +37,12 @@ namespace Infusion
             {
                 prefix = null;
                 suffix = null;
-                tried = true;
             }
             else
             {
                 GenerateInfusion( qc, shouldFireMote );
-                tried = true;
             }
+            tried = true;
         }
 
         private float GetChance( QualityCategory qc, InfusionType type )

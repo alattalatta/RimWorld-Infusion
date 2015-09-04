@@ -30,7 +30,7 @@ namespace Infusion
             }
             catch ( Exception e )
             {
-                Log.Warning( "LT-IN: InfusionManager met error. Hibernating." );
+                Log.Warning( "LT-IN: InfusionManager met an error. Hibernating." );
                 Log.Error( e.ToString() );
                 welfare = false;
             }
@@ -62,9 +62,7 @@ namespace Infusion
             {
                 return;
             }
-#if DEBUG
-            Log.Message("Infusing: " + pawn + " " + pawn.equipment.Primary);
-#endif
+
             compInfusion.SetInfusion();
             compInfusion.tried = true;
         }
@@ -83,9 +81,7 @@ namespace Infusion
                 {
                     continue;
                 }
-#if DEBUG
-                Log.Message("Infusing: " + pawn + " " + curApparel);
-#endif
+
                 compInfusion.SetInfusion();
                 compInfusion.tried = true;
             }

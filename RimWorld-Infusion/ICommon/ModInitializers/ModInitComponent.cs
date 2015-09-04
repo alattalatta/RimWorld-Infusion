@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using RimWorld;
 using UnityEngine;
@@ -42,13 +43,12 @@ namespace Infusion
             var defsByName = typeFromHandle.GetField( "defsByName", BindingFlags.Static | BindingFlags.NonPublic );
             if ( defsByName == null )
             {
-                throw new NullReferenceException( "LT: defsByName is null" );
+                throw new NullReferenceException( "LT-IN: defsByName is null" );
             }
-            var valDefsByName = defsByName.GetValue( null );
-            var dictDefsByName = valDefsByName as Dictionary< string, ThingDef >;
+            var dictDefsByName = defsByName.GetValue( null ) as Dictionary< string, ThingDef >;
             if ( dictDefsByName == null )
             {
-                throw new Exception( "LT: Could not access private members" );
+                throw new Exception( "LT-IN: Could not access private members" );
             }
             foreach ( var current in dictDefsByName )
             {
@@ -64,23 +64,17 @@ namespace Infusion
                     AddInfusionITab( current.Value );
                 }
             }
-            //Log.Message("Injected new ThingComp by " + ModName);
         }
-
-
+        
         //Inject new ThingComp.
         private static bool AddCompInfusion( ThingDef def )
         {
-            var qualityExist = false;
-            foreach ( var current in def.comps )
+            if ( def.comps.Exists( s => s.compClass == typeof ( CompInfusion ) ) )
             {
-                //Only add when CompQuality exists. Pass when we already know that it has CompQuality.
-                if ( !qualityExist && current.compClass == typeof ( CompQuality ) )
-                {
-                    qualityExist = true;
-                }
+                return false;
             }
-            if ( !qualityExist )
+
+            if ( !def.comps.Exists( s => s.compClass == typeof ( CompQuality ) ) )
             {
                 return false;
             }

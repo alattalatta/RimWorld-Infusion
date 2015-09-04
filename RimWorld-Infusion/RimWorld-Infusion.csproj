@@ -48,12 +48,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Infusions\ApparelWithInfusions.cs" />
+    <Compile Include="Infusions\ThingClasses\ApparelWithInfusions.cs" />
     <Compile Include="Infusions\Comp\CompInfusion.cs" />
     <Compile Include="Infusions\UI\ITab_Infusion.cs" />
-    <Compile Include="Infusions\StatPart_InfusionModifierTemperature.cs" />
-    <Compile Include="Infusions\StatPart_InfusionWorkerTemperature.cs" />
-    <Compile Include="Infusions\ThingWithInfusions.cs" />
+    <Compile Include="Infusions\StatParts\StatPart_InfusionModifierTemperature.cs" />
+    <Compile Include="Infusions\StatParts\StatPart_InfusionWorkerTemperature.cs" />
+    <Compile Include="Infusions\ThingClasses\ThingWithInfusions.cs" />
     <Compile Include="ICommon\Gens\DistanceUtility.cs" />
     <Compile Include="ICommon\Gens\GenInfusionColor.cs" />
     <Compile Include="ICommon\Gens\MathUtility.cs" />
@@ -61,15 +61,15 @@
     <Compile Include="Infusions\InfusionLabelManager.cs" />
     <Compile Include="Infusions\InfusionDef.cs" />
     <Compile Include="ICommon\Gens\GenInfusion.cs" />
-    <Compile Include="Infusions\MapComponent_InfusionManager.cs" />
+    <Compile Include="Infusions\MapComponent\MapComponent_InfusionManager.cs" />
     <Compile Include="Infusions\InfusionSet.cs" />
     <Compile Include="ICommon\ModInitializers\ModInitComponent.cs" />
     <Compile Include="ICommon\ModInitializers\ModInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ICommon\ResourceBank.cs" />
     <Compile Include="ICommon\StatMod.cs" />
-    <Compile Include="Infusions\StatPart_InfusionModifier.cs" />
-    <Compile Include="Infusions\StatPart_InfusionWorker.cs" />
+    <Compile Include="Infusions\StatParts\StatPart_InfusionModifier.cs" />
+    <Compile Include="Infusions\StatParts\StatPart_InfusionWorker.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
