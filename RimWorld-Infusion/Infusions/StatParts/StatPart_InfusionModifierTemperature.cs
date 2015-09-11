@@ -17,8 +17,7 @@ namespace Infusion
 
             if ( mod.offset.FloatEqual( 0 ) && mod.multiplier.FloatEqual( 1 ) )
             {
-                result.AppendLine( "    " + "None" );
-                return result.ToString();
+	            return null;
             }
 
             if ( mod.offset.FloatNotEqual( 0 ) )

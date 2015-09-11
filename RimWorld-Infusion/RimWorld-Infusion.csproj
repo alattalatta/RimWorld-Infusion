@@ -54,7 +54,6 @@
     <Compile Include="Infusions\StatParts\StatPart_InfusionModifierTemperature.cs" />
     <Compile Include="Infusions\StatParts\StatPart_InfusionWorkerTemperature.cs" />
     <Compile Include="Infusions\ThingClasses\ThingWithInfusions.cs" />
-    <Compile Include="ICommon\Gens\DistanceUtility.cs" />
     <Compile Include="ICommon\Gens\GenInfusionColor.cs" />
     <Compile Include="ICommon\Gens\MathUtility.cs" />
     <Compile Include="ICommon\Gens\TextUtility.cs" />

@@ -75,7 +75,6 @@ namespace Infusion
         protected string WriteExplanation( Thing thing, InfusionSet infusions )
         {
             var result = new StringBuilder();
-            result.AppendLine( ResourceBank.StringInfusionDescBonus );
 
             if ( !infusions.PassPre )
             {
@@ -100,8 +99,7 @@ namespace Infusion
 
             if ( mod.offset.FloatEqual(0) && mod.multiplier.FloatEqual(1) )
             {
-                result.AppendLine("    " + "None");
-                return result.ToString();
+	            return null;
             }
 
             if ( mod.offset.FloatNotEqual( 0 ) )

@@ -11,29 +11,12 @@ namespace Infusion
 		public static readonly Color Legendary = new Color(1, 0.5f, 0);
 		public static readonly Color Artifact = new Color(0.92f, 0.84f, 0.56f);
 
-		public static Color QualityColor(this QualityCategory qc)
-		{
-			switch ((int)qc)
-			{
-				case 4:
-					return Uncommon;
-				case 5:
-					return Rare;
-				case 6:
-					return Epic;
-				case 7:
-					return Legendary;
-				case 8:
-					return Artifact;
-				default:
-					return Color.white;
-			}
-		}
-
 		public static Color InfusionColor(this InfusionTier it)
 		{
 			switch (it)
 			{
+				case InfusionTier.Common:
+					return Color.white;
 				case InfusionTier.Uncommon:
 					return Uncommon;
 				case InfusionTier.Rare:

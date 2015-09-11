@@ -108,8 +108,10 @@ namespace Infusion
             InfusionSet infusions;
             var result = new StringBuilder();
 
-            //Pawn has a primary weapon
-            if ( pawn.equipment.Primary.TryGetInfusions( out infusions ) )
+			result.AppendLine(ResourceBank.StringInfusionDescBonus);
+
+			//Pawn has a primary weapon
+			if ( pawn.equipment.Primary.TryGetInfusions( out infusions ) )
             {
                 result.Append( WriteExplanation( pawn.equipment.Primary, infusions ) );
             }
@@ -143,8 +145,7 @@ namespace Infusion
 
             if ( mod.offset.FloatEqual( 0 ) && mod.multiplier.FloatEqual( 1 ) )
             {
-                result.AppendLine( "    " + "None" );
-                return result.ToString();
+	            return null;
             }
 
             if ( mod.offset.FloatNotEqual( 0 ) )

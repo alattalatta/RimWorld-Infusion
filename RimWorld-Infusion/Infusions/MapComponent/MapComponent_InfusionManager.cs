@@ -30,9 +30,9 @@ namespace Infusion
             }
             catch ( Exception e )
             {
-                Log.Warning( "LT-IN: InfusionManager met an error. Hibernating." );
                 Log.Error( e.ToString() );
-                welfare = false;
+				Log.Warning("LT-IN: InfusionManager met an error. Hibernating.");
+				welfare = false;
             }
         }
         public override void MapComponentOnGUI()
@@ -97,18 +97,9 @@ namespace Infusion
                 if ( shipDict.Contains( ship ) )
                     continue;
 
-                Log.Message( ship.FullTitle );
-
                 var field = typeof(TradeShip).GetField( "things", BindingFlags.NonPublic | BindingFlags.Instance);
-                if ( field == null )
-                {
-#if DEBUG
-                    Log.Error("LT-IN: Could not get field from trader " + ship.name);
-#endif
-                    continue;
-                }
 
-                var stock = field.GetValue( ship ) as List< Thing >;
+	            var stock = field?.GetValue( ship ) as List< Thing >;
                 if ( stock == null )
                 {
 #if DEBUG

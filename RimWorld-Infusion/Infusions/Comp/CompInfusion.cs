@@ -45,79 +45,23 @@ namespace Infusion
             tried = true;
         }
 
-        private float GetChance( QualityCategory qc, InfusionType type )
-        {
-            float result;
-            switch ( qc )
-            {
-                //									  Pre : Suf
-                case QualityCategory.Good:
-                    result = type == InfusionType.Prefix ? 27 : 33;
-                    break;
-                case QualityCategory.Superior:
-                    result = type == InfusionType.Prefix ? 36 : 41;
-                    break;
-                case QualityCategory.Excellent:
-                    result = type == InfusionType.Prefix ? 50 : 59;
-                    break;
-                case QualityCategory.Masterwork:
-                    result = type == InfusionType.Prefix ? 68 : 73;
-                    break;
-                case QualityCategory.Legendary:
-                    result = type == InfusionType.Prefix ? 72 : 80;
-                    break;
-                default:
-                    result = 0;
-                    break;
-            }
-            if ( parent.def.IsRangedWeapon )
-            {
-                result *= 0.90f;
-            }
-            else if ( parent.def.IsApparel )
-            {
-                result *= 0.80f;
-            }
-
-            return result;
-        }
-
-        private static InfusionTier GetTier( QualityCategory qc, InfusionType type )
-        {
-            var rand = Rand.Range( 0, 100 );
-            //												   Pre : Suf
-            if ( rand > (type == InfusionType.Prefix ? 48 + (int) qc : 43 + (int) qc) )
-            {
-                return InfusionTier.Uncommon;
-            }
-            if ( rand > (type == InfusionType.Prefix ? 19 + (int) qc : 13 + (int) qc) )
-            {
-                return InfusionTier.Rare;
-            }
-            if ( rand > (type == InfusionType.Prefix ? 6 : 4) )
-            {
-                return InfusionTier.Epic;
-            }
-            if ( rand > (type == InfusionType.Prefix ? 2 : 1) )
-            {
-                return InfusionTier.Legendary;
-            }
-            return InfusionTier.Artifact;
-        }
-
         private void GenerateInfusion( QualityCategory qc, bool shouldThrowMote )
         {
             bool passPre = false, passSuf = false;
 
-            var chance = GetChance( qc, InfusionType.Prefix );
+            var chance = GenInfusion.GetInfusionChance( qc );
             var rand = Rand.Range( 0, 100 );
 
+	        if ( parent.def.techLevel < TechLevel.Midworld )
+	        {
+		        rand /= 10;
+	        }
             if ( rand >= chance )
             {
                 passPre = true;
             }
 
-            chance = GetChance( qc, InfusionType.Suffix );
+            chance = GenInfusion.GetInfusionChance( qc );
             rand = Rand.Range( 0, 100 );
 
             if ( rand >= chance )
@@ -134,7 +78,7 @@ namespace Infusion
             if ( !passPre )
             {
                 InfusionDef preTemp;
-                var tier = GetTier( qc, InfusionType.Prefix );
+                var tier = GenInfusion.GetTier( qc );
                 if (
                     !(
                         from t in DefDatabase< InfusionDef >.AllDefs.ToList()
@@ -155,7 +99,7 @@ namespace Infusion
             if ( !passSuf )
             {
                 InfusionDef preTemp;
-                var tier = GetTier( qc, InfusionType.Suffix );
+                var tier = GenInfusion.GetTier( qc );
                 if ( !
                     (from t in DefDatabase< InfusionDef >.AllDefs.ToList()
                      where
@@ -224,23 +168,7 @@ namespace Infusion
 
         public override bool AllowStackWith( Thing other )
         {
-            if ( other.TryGetComp< CompInfusion >() == null )
-            {
-                return false;
-            }
-
-            InfusionSet otherSet;
-            other.TryGetInfusions( out otherSet );
-
-            return Infusions.Equals( otherSet );
-        }
-
-        public override void PostSplitOff( Thing piece )
-        {
-            base.PostSplitOff( piece );
-            piece.TryGetComp< CompInfusion >().tried = tried;
-            piece.TryGetComp< CompInfusion >().prefix = prefix;
-            piece.TryGetComp< CompInfusion >().suffix = suffix;
+			return false;
         }
 
         public override string GetDescriptionPart()

@@ -36,34 +36,40 @@ namespace Infusion
         }
 
         //Inject every prerequisites to defs.
-        private void InjectVarious()
-        {
-            //Access ThingDef database with each def's defName.
-            var typeFromHandle = typeof ( DefDatabase< ThingDef > );
-            var defsByName = typeFromHandle.GetField( "defsByName", BindingFlags.Static | BindingFlags.NonPublic );
-            if ( defsByName == null )
-            {
-                throw new NullReferenceException( "LT-IN: defsByName is null" );
-            }
-            var dictDefsByName = defsByName.GetValue( null ) as Dictionary< string, ThingDef >;
-            if ( dictDefsByName == null )
-            {
-                throw new Exception( "LT-IN: Could not access private members" );
-            }
-            foreach ( var current in dictDefsByName )
-            {
-                if ( !current.Value.IsMeleeWeapon && !current.Value.IsRangedWeapon && !current.Value.IsApparel )
-                {
-                    continue;
-                }
+	    private void InjectVarious()
+	    {
+		    //Access ThingDef database with each def's defName.
+		    var field = typeof ( DefDatabase< ThingDef > ).GetField( "defsByName",
+		                                                                  BindingFlags.Static | BindingFlags.NonPublic );
+		    if ( field == null )
+		    {
+			    throw new Exception( "LT-IN: field is null" );
+		    }
+		    var defsByName = field.GetValue( null ) as Dictionary< string, ThingDef >;
+		    if ( defsByName == null )
+		    {
+			    throw new Exception( "LT-IN: Could not access private members" );
+		    }
+		    try
+		    {
+			    foreach (
+				    var current in
+					    defsByName.Values.Where( current => current.IsMeleeWeapon ||
+					                                        current.IsRangedWeapon ||
+					                                        current.IsApparel ) )
+			    {
+				    ReplaceClass( current );
 
-                ReplaceClass( current.Value );
-
-                if ( AddCompInfusion( current.Value ) )
-                {
-                    AddInfusionITab( current.Value );
-                }
-            }
+				    if ( AddCompInfusion( current ) )
+				    {
+					    AddInfusionITab( current );
+				    }
+			    }
+		    }
+		    catch ( Exception e )
+		    {
+			    throw new Exception("LT-IN: Met error while injecting.\n" + e);
+		    }
         }
         
         //Inject new ThingComp.
@@ -94,8 +100,7 @@ namespace Infusion
             {
                 def.thingClass = typeof ( ThingWithInfusions );
             }
-            else if ( def.IsApparel && ResourceBank.FindModActive( "LT_Infusion" ) &&
-                      def.thingClass == typeof ( Apparel ) )
+            else if ( def.IsApparel && def.thingClass == typeof ( Apparel ) )
             {
                 def.thingClass = typeof ( ApparelWithInfusions );
             }
@@ -105,26 +110,17 @@ namespace Infusion
         //Inject new ITab to given def.
         private static void AddInfusionITab( ThingDef def )
         {
-            if ( def.inspectorTabs == null || def.inspectorTabs.Count == 0 )
-            {
-                def.inspectorTabs = new List< Type >();
-                def.inspectorTabsResolved = new List< ITab >();
-            }
-            if ( def.inspectorTabs.Contains( typeof ( ITab_Infusion ) ) )
-            {
-                return;
-            }
-
-            try
-            {
-                def.inspectorTabs.Add( typeof ( ITab_Infusion ) );
-                def.inspectorTabsResolved.Add( ITabManager.GetSharedInstance( typeof ( ITab_Infusion ) ) );
-            }
-            catch ( Exception ex )
-            {
-                Log.Warning( "LT: Failed to inject an ITab to " + def.label );
-                Log.Warning( ex.ToString() );
-            }
+	        if ( def.inspectorTabs == null || def.inspectorTabs.Count == 0 )
+	        {
+		        def.inspectorTabs = new List< Type >();
+		        def.inspectorTabsResolved = new List< ITab >();
+	        }
+	        if ( def.inspectorTabs.Contains( typeof ( ITab_Infusion ) ) )
+	        {
+		        return;
+	        }
+	        def.inspectorTabs.Add( typeof ( ITab_Infusion ) );
+	        def.inspectorTabsResolved.Add( ITabManager.GetSharedInstance( typeof ( ITab_Infusion ) ) );
         }
     }
 }
