@@ -7,14 +7,6 @@ namespace Infusion
     {
         protected override string WriteExplanationDetail( Thing infusedThing, string val )
         {
-            //Apparel's temperature stat only uses InfusionModifier. Skipping.
-
-            var pawn = infusedThing as Pawn;
-            if ( pawn == null )
-            {
-                return null;
-            }
-
             StatMod mod;
             var inf = val.ToInfusionDef();
             var result = new StringBuilder();
@@ -30,13 +22,13 @@ namespace Infusion
 
             if ( mod.offset.FloatNotEqual( 0 ) )
             {
-                result.Append( "    " + pawn.equipment.Primary.GetInfusedLabel().CapitalizeFirst() + ": " );
+                result.Append( "    " + infusedThing.GetInfusedLabel().CapitalizeFirst() + ": " );
                 result.Append( mod.offset > 0 ? "+" : "-" );
                 result.AppendLine( mod.offset.ToAbs().ToStringTemperatureOffset() );
             }
             if ( mod.multiplier.FloatNotEqual( 1 ) )
             {
-                result.Append( "    " + pawn.equipment.Primary.GetInfusedLabel().CapitalizeFirst() + ": x" );
+                result.Append( "    " + infusedThing.GetInfusedLabel().CapitalizeFirst() + ": x" );
                 result.AppendLine( mod.multiplier.ToStringPercent() );
             }
 
