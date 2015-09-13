@@ -196,18 +196,10 @@ namespace Infusion
 		                }
 		                result.AppendLine( " " + current.Key.LabelCap );
 	                }
-	                else
-	                {
-		                Log.Message( "offset == 0! Stat:" + current.Key + "/" + current.Value.offset);
-	                }
 	                if ( current.Value.multiplier.FloatNotEqual( 1 ) )
 	                {
 		                result.Append( "     " + current.Value.multiplier.ToAbs().ToStringPercent() );
 		                result.AppendLine( " " + current.Key.LabelCap );
-					}
-					else
-					{
-						Log.Message("multiplier == 1! " + current.Key + "/" + current.Value.multiplier);
 					}
 				}
                 result.AppendLine();
