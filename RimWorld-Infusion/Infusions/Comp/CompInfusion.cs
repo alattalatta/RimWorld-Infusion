@@ -6,175 +6,187 @@ using Verse.Sound;
 
 namespace Infusion
 {
-    public class CompInfusion : ThingComp
-    {
-        public bool Infused => prefix != null || suffix != null;
+	public class CompInfusion : ThingComp
+	{
+		public bool Infused => prefix != null || suffix != null;
 
-        public InfusionSet Infusions => new InfusionSet( prefix, suffix );
+		public InfusionSet Infusions => new InfusionSet( prefix, suffix );
 
-        //Did we tried to infuse this item?
-        public bool tried;
+		//Did we tried to infuse this item?
+		public bool tried;
 
-        private string prefix, suffix;
+		private string prefix, suffix;
 
-        private static readonly SoundDef InfusionSound = SoundDef.Named( "Infusion_Infused" );
+		private static readonly SoundDef InfusionSound = SoundDef.Named( "Infusion_Infused" );
 
-        public void SetInfusion( bool shouldFireMote = false )
-        {
-            if ( tried )
-            {
-                return;
-            }
-            var compQuality = parent.GetComp< CompQuality >();
-            if ( compQuality == null )
-            {
-                tried = true;
-                return;
-            }
+		public void SetInfusion( bool shouldThrowMote = false )
+		{
+			if ( tried )
+			{
+				return;
+			}
+			var compQuality = parent.GetComp< CompQuality >();
+			if ( compQuality == null )
+			{
+				tried = true;
+				return;
+			}
 
-            var qc = compQuality.Quality;
-            if ( qc <= QualityCategory.Normal )
-            {
-                prefix = null;
-                suffix = null;
-            }
-            else
-            {
-                GenerateInfusion( qc, shouldFireMote );
-            }
-            tried = true;
-        }
+			GenerateInfusion( compQuality.Quality, shouldThrowMote );
+			tried = true;
+		}
 
-        private void GenerateInfusion( QualityCategory qc, bool shouldThrowMote )
-        {
-            bool passPre = false, passSuf = false;
+		private void GenerateInfusion( QualityCategory qc, bool shouldThrowMote )
+		{
+			prefix = null;
+			suffix = null;
 
-            var chance = GenInfusion.GetInfusionChance( qc );
-            var rand = Rand.Range( 0, 100 );
+			var passPre = true;
+			var passSuf = true;
+			var lowTech = parent.def.techLevel < TechLevel.Midworld;
 
-	        if ( parent.def.techLevel < TechLevel.Midworld )
-	        {
-		        rand /= 10;
-	        }
-            if ( rand >= chance )
-            {
-                passPre = true;
-            }
+			var chance = GenInfusion.GetInfusionChance( qc );
+			var rand = Rand.Value;
+			if ( lowTech )
+			{
+				rand /= 3;
+			}
+			if ( rand <= chance )
+			{
+				passPre = false;
+			}
 
-            chance = GenInfusion.GetInfusionChance( qc );
-            rand = Rand.Range( 0, 100 );
+			chance = GenInfusion.GetInfusionChance( qc );
+			rand = Rand.Value;
+			if ( lowTech )
+			{
+				rand /= 3;
+			}
+			if ( rand <= chance )
+			{
+				passSuf = false;
+			}
 
-            if ( rand >= chance )
-            {
-                passSuf = true;
-            }
+			if ( passPre && passSuf )
+			{
+				//None has made this far
+				return;
+			}
 
-            if ( passPre && passSuf )
-            {
-                //None has made this far
-                return;
-            }
+			var tierMult = lowTech ? 3 : 1;
 
-            if ( !passPre )
-            {
-                InfusionDef preTemp;
-                var tier = GenInfusion.GetTier( qc );
-                if (
-                    !(
-                        from t in DefDatabase< InfusionDef >.AllDefs.ToList()
-                        where
-                            t.tier == tier &&
-                            t.type == InfusionType.Prefix &&
-                            t.MatchItemType( parent.def )
-                        select t
-                        ).TryRandomElement( out preTemp ) )
-                {
-                    //No infusion available from defs
-                    Log.Warning( "Couldn't find any prefixed InfusionDef! Tier: " + tier );
-                    shouldThrowMote = false;
-                }
-                prefix = preTemp.defName;
-            }
+			if ( !passPre )
+			{
+				InfusionDef preTemp;
+				var tier = GenInfusion.GetTier( qc, tierMult );
+				if (
+					!(
+						from t in DefDatabase< InfusionDef >.AllDefs.ToList()
+						where
+							t.tier == tier &&
+							t.type == InfusionType.Prefix &&
+							t.MatchItemType( parent.def )
+						select t
+						).TryRandomElement( out preTemp ) )
+				{
+					//No infusion available from defs
+					Log.Warning( "Couldn't find any prefixed InfusionDef! Tier: " + tier );
+					shouldThrowMote = false;
+					prefix = null;
+				}
+				else
+				{
+					prefix = preTemp.defName;
+				}
+			}
 
-            if ( !passSuf )
-            {
-                InfusionDef preTemp;
-                var tier = GenInfusion.GetTier( qc );
-                if ( !
-                    (from t in DefDatabase< InfusionDef >.AllDefs.ToList()
-                     where
-                         t.tier == tier &&
-                         t.type == InfusionType.Suffix &&
-                         t.MatchItemType( parent.def )
-                     select t
-                        ).TryRandomElement( out preTemp ) )
-                {
-                    //No infusion available from defs
-                    Log.Warning( "Couldn't find any suffixed InfusionDef! Tier: " + tier );
-                    shouldThrowMote = false;
-                }
-                suffix = preTemp.defName;
-            }
+			if ( !passSuf )
+			{
+				InfusionDef preTemp;
+				var tier = GenInfusion.GetTier( qc, tierMult );
+				if ( !
+					(from t in DefDatabase< InfusionDef >.AllDefs.ToList()
+					 where
+						 t.tier == tier &&
+						 t.type == InfusionType.Suffix &&
+						 t.MatchItemType( parent.def )
+					 select t
+						).TryRandomElement( out preTemp ) )
+				{
+					//No infusion available from defs
+					Log.Warning( "Couldn't find any suffixed InfusionDef! Tier: " + tier );
+					shouldThrowMote = false;
+					suffix = null;
+				}
+				else
+				{
+					suffix = preTemp.defName;
+				}
+			}
 
-            //For additional hit points
-            parent.HitPoints = parent.MaxHitPoints;
+			//For additional hit points
+			parent.HitPoints = parent.MaxHitPoints;
 
-            if ( !shouldThrowMote )
-            {
-                return;
-            }
+			if ( !shouldThrowMote )
+			{
+				return;
+			}
 
-            var msg = new StringBuilder();
-            msg.Append( ResourceBank.QualityAsTranslated( qc ) + " " );
-            if ( parent.Stuff != null )
-            {
-                msg.Append( parent.Stuff.LabelAsStuff + " " );
-            }
-            msg.Append( parent.def.label );
-            Messages.Message( ResourceBank.StringInfusionMessage.Translate( msg ), MessageSound.Silent );
-            InfusionSound.PlayOneShotOnCamera();
-            MoteThrower.ThrowText( parent.Position.ToVector3Shifted(), ResourceBank.StringInfused,
-                                   GenInfusionColor.Legendary );
-        }
+			var msg = new StringBuilder();
+			msg.Append( qc.GetLabel() + " " );
+			if ( parent.Stuff != null )
+			{
+				msg.Append( parent.Stuff.LabelAsStuff + " " );
+			}
+			msg.Append( parent.def.label );
+			Messages.Message( ResourceBank.StringInfusionMessage.Translate( msg ), MessageSound.Silent );
+			InfusionSound.PlayOneShotOnCamera();
+			MoteThrower.ThrowText( parent.Position.ToVector3Shifted(), ResourceBank.StringInfused,
+			                       GenInfusionColor.Legendary );
+		}
 
-        public override void PostSpawnSetup()
-        {
-            base.PostSpawnSetup();
-            SetInfusion( true );
-            if ( Infused )
-            {
-                InfusionLabelManager.Register( this );
-            }
-        }
+		public override void PostSpawnSetup()
+		{
+			base.PostSpawnSetup();
+			SetInfusion( true );
+			if ( Infused )
+			{
+				InfusionLabelManager.Register( this );
+			}
+		}
 
-        public override void PostExposeData()
-        {
-            base.PostExposeData();
-            
-            Scribe_Values.LookValue( ref tried, "tried", false );
-            Scribe_Values.LookValue( ref prefix, "prefix", null );
-            Scribe_Values.LookValue( ref suffix, "suffix", null );
-        }
+		public override void PostExposeData()
+		{
+			base.PostExposeData();
 
-        public override void PostDeSpawn()
-        {
-            base.PostDeSpawn();
+			Scribe_Values.LookValue( ref tried, "tried", false );
+			Scribe_Values.LookValue( ref prefix, "prefix", null );
+			Scribe_Values.LookValue( ref suffix, "suffix", null );
 
-            if ( Infused )
-            {
-                InfusionLabelManager.DeRegister( this );
-            }
-        }
+			if ( prefix.ToInfusionDef() == null || suffix.ToInfusionDef() == null )
+			{
+				tried = false;
+			}
+		}
 
-        public override bool AllowStackWith( Thing other )
-        {
+		public override void PostDeSpawn()
+		{
+			base.PostDeSpawn();
+
+			if ( Infused )
+			{
+				InfusionLabelManager.DeRegister( this );
+			}
+		}
+
+		public override bool AllowStackWith( Thing other )
+		{
 			return false;
-        }
+		}
 
-        public override string GetDescriptionPart()
-        {
-            return base.GetDescriptionPart() + parent.GetInfusedDescription() + "\n" +
-                   parent.GetInfusedDescriptionITab();
-        }
-    }
+		public override string GetDescriptionPart()
+		{
+			return base.GetDescriptionPart() + "\n" + parent.GetInfusionDesc();
+		}
+	}
 }

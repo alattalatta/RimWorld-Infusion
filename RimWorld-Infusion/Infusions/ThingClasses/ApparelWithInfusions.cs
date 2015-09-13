@@ -12,7 +12,6 @@ namespace Infusion
             {
                 QualityCategory qc;
                 if ( !this.TryGetQuality( out qc ) ||
-                     qc < QualityCategory.Good ||
                      this.TryGetComp< CompInfusion >() == null ||
                      !this.TryGetComp< CompInfusion >().Infused )
                 {

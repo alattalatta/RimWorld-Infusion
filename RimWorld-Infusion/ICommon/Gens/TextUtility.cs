@@ -65,22 +65,22 @@ namespace Infusion
         /** End of the hash things. **/
 
         //Get one of existing infused labels from dictionary.
-        public static string GetInfusedLabel( this Thing _thing, bool _isStuffed = true, bool _isDetailed = true )
+        public static string GetInfusedLabel( this Thing thing, bool isStuffed = true, bool isDetailed = true )
         {
             var request = new InfusedLabelRequest
             {
-                BuildableDef = _thing.def,
-                Thing = _thing
+                BuildableDef = thing.def,
+                Thing = thing
             };
 
-            if ( _isStuffed )
+            if ( isStuffed )
             {
-                request.StuffDef = _thing.Stuff;
+                request.StuffDef = thing.Stuff;
             }
-            if ( _isDetailed )
+            if ( isDetailed )
             {
-                request.MaxHitPoints = _thing.MaxHitPoints;
-                request.HitPoints = _thing.HitPoints;
+                request.MaxHitPoints = thing.MaxHitPoints;
+                request.HitPoints = thing.HitPoints;
             }
 
             var hashCode = request.GetHashCode();
@@ -95,7 +95,7 @@ namespace Infusion
             {
                 infusedLabelDict.Clear();
             }
-            result = NewInfusedThingLabel( _thing, _isStuffed, _isDetailed );
+            result = NewInfusedThingLabel( thing, isStuffed, isDetailed );
             //Save it to the dictionary.
             infusedLabelDict.Add( hashCode, result );
             return result;
@@ -125,7 +125,7 @@ namespace Infusion
             }
 
             result.Append( !inf.PassSuf
-                ? ResourceBank.StringInfusionOf.Translate( thingLabel, inf.Suffix.ToInfusionDef().label )
+                ? ResourceBank.StringInfusionOf.Translate( thingLabel, inf.Suffix.ToInfusionDef().label.CapitalizeFirst() )
                 : thingLabel );
 
             if ( !isDetailed )
@@ -150,7 +150,7 @@ namespace Infusion
         }
 
         //Make a new infusion stat information.
-        public static string GetInfusedDescriptionITab( this Thing thing )
+        public static string GetInfusionDesc( this Thing thing )
         {
             InfusionSet inf;
             if ( !thing.TryGetInfusions( out inf ) )
@@ -162,44 +162,54 @@ namespace Infusion
             if ( !inf.PassPre )
             {
                 var prefix = inf.Prefix.ToInfusionDef();
-                result.AppendLine( ResourceBank.StringInfusionDescFrom.Translate( prefix.LabelCap ) );
+	            result.Append( ResourceBank.StringInfusionDescFrom.Translate( prefix.LabelCap ) )
+	                  .Append( " (" )
+	                  .Append( prefix.tier.Translate() )
+	                  .AppendLine( ")" );
+
                 foreach ( var current in prefix.stats )
                 {
-                    if ( Math.Abs( current.Value.offset ) > 0.001f )
-                    {
-                        result.Append( "     " + (current.Value.offset > 0 ? "+" : "-") );
-                        if ( current.Key == StatDefOf.ComfyTemperatureMax ||
-                             current.Key == StatDefOf.ComfyTemperatureMin )
-                        {
-                            result.Append( current.Value.offset.ToAbs().ToStringTemperatureOffset() );
-                        }
-                        else
-                        {
-                            var modifier =
-                                current.Key.parts.Find( _s => _s is StatPart_InfusionModifier ) as
-                                    StatPart_InfusionModifier;
-                            if ( modifier != null )
-                            {
-                                if ( modifier.offsetUsePercentage )
-                                {
-                                    result.Append( current.Value.offset.ToAbs().ToStringPercent() );
-                                }
-                                else
-                                {
-                                    result.Append( current.Value.offset.ToAbs() + modifier.offsetSuffix );
-                                }
-                            }
-                        }
-                        result.AppendLine( " " + current.Key.LabelCap );
-                    }
-                    if ( Math.Abs( current.Value.multiplier - 1 ) < 0.001f )
-                    {
-                        continue;
-                    }
-
-                    result.Append( "     " + current.Value.multiplier.ToAbs().ToStringPercent() );
-                    result.AppendLine( " " + current.Key.LabelCap );
-                }
+	                if ( current.Value.offset.FloatNotEqual( 0 ) )
+	                {
+		                result.Append( "     " + (current.Value.offset > 0 ? "+" : "-") );
+		                if ( current.Key == StatDefOf.ComfyTemperatureMax ||
+		                     current.Key == StatDefOf.ComfyTemperatureMin )
+		                {
+			                result.Append( current.Value.offset.ToAbs().ToStringTemperatureOffset() );
+		                }
+		                else
+		                {
+			                var modifier =
+				                current.Key.parts.Find( s => s is StatPart_InfusionModifier ) as
+					                StatPart_InfusionModifier;
+			                if ( modifier != null )
+			                {
+				                if ( modifier.offsetUsePercentage )
+				                {
+					                result.Append( current.Value.offset.ToAbs().ToStringPercent() );
+				                }
+				                else
+				                {
+					                result.Append( current.Value.offset.ToAbs() + modifier.offsetSuffix );
+				                }
+			                }
+		                }
+		                result.AppendLine( " " + current.Key.LabelCap );
+	                }
+	                else
+	                {
+		                Log.Message( "offset == 0! Stat:" + current.Key + "/" + current.Value.offset);
+	                }
+	                if ( current.Value.multiplier.FloatNotEqual( 1 ) )
+	                {
+		                result.Append( "     " + current.Value.multiplier.ToAbs().ToStringPercent() );
+		                result.AppendLine( " " + current.Key.LabelCap );
+					}
+					else
+					{
+						Log.Message("multiplier == 1! " + current.Key + "/" + current.Value.multiplier);
+					}
+				}
                 result.AppendLine();
             }
             if ( inf.PassSuf )
@@ -208,10 +218,14 @@ namespace Infusion
             }
 
             var suffix = inf.Suffix.ToInfusionDef();
-            result.AppendLine( ResourceBank.StringInfusionDescFrom.Translate( suffix.LabelCap ) );
-            foreach ( var current in suffix.stats )
+			result.Append(ResourceBank.StringInfusionDescFrom.Translate(suffix.LabelCap))
+				  .Append(" (")
+				  .Append(suffix.tier.Translate())
+				  .AppendLine(")");
+
+			foreach ( var current in suffix.stats )
             {
-                if ( Math.Abs( current.Value.offset ) > 0.001f )
+                if ( current.Value.offset.FloatNotEqual( 0 ) )
                 {
                     result.Append( "     " + (current.Value.offset > 0 ? "+" : "-") );
                     if ( current.Key == StatDefOf.ComfyTemperatureMax || current.Key == StatDefOf.ComfyTemperatureMin )
@@ -221,7 +235,7 @@ namespace Infusion
                     else
                     {
                         var modifier =
-                            current.Key.parts.Find( _s => _s is StatPart_InfusionModifier ) as StatPart_InfusionModifier;
+                            current.Key.parts.Find( s => s is StatPart_InfusionModifier ) as StatPart_InfusionModifier;
                         if ( modifier != null )
                         {
                             if ( modifier.offsetUsePercentage )
@@ -236,45 +250,12 @@ namespace Infusion
                     }
                     result.AppendLine( " " + current.Key.LabelCap );
                 }
-                if ( Math.Abs( current.Value.multiplier - 1 ) < 0.001f )
-                {
-                    continue;
-                }
-
-                result.Append( "     " + current.Value.multiplier.ToAbs().ToStringPercent() );
-                result.AppendLine( " " + current.Key.LabelCap );
+	            if ( current.Value.multiplier.FloatNotEqual( 1 ) )
+	            {
+		            result.Append( "     " + current.Value.multiplier.ToAbs().ToStringPercent() );
+		            result.AppendLine( " " + current.Key.LabelCap );
+	            }
             }
-            return result.ToString();
-        }
-
-        //Get infusion's defined(XML) description.
-        public static string GetInfusedDescription( this Thing thing )
-        {
-            InfusionSet inf;
-            if ( !thing.TryGetInfusions( out inf ) )
-            {
-                return null;
-            }
-
-            var result = new StringBuilder( null );
-            if ( !inf.PassPre )
-            {
-                var str = thing.def.IsApparel ? ResourceBank.StringThisApparel : ResourceBank.StringThisWeapon;
-                result.Append( str + " " + inf.Prefix.ToInfusionDef().description + "." );
-                if ( !inf.PassSuf )
-                {
-                    result.Append( " " );
-                }
-            }
-            if ( !inf.PassSuf )
-            {
-                result.AppendLine( inf.Suffix.ToInfusionDef().description.CapitalizeFirst() + "." );
-            }
-            else
-            {
-                result.AppendLine();
-            }
-
             return result.ToString();
         }
     }

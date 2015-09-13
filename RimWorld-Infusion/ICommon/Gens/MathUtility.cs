@@ -25,7 +25,7 @@ namespace Infusion
 
         public static bool FloatEqual( this float a, float b )
         {
-            return a - b < 0.00001f;
+            return (a - b).ToAbs() < 0.00001f;
         }
 
         public static bool FloatNotEqual( this float a, float b )

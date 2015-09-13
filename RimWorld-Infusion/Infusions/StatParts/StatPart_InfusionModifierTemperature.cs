@@ -30,7 +30,6 @@ namespace Infusion
             {
                 result.Append( "    " + inf.label.CapitalizeFirst() + ": x" );
                 result.AppendLine( mod.multiplier.ToStringPercent() );
-                return result.ToString();
             }
 
             return result.ToString();

@@ -41,7 +41,7 @@ namespace Infusion
 		//public bool furniture = false;
 
 		/// <summary>
-		/// Get matching StatMod for given stat, from this def. Returns false when none.
+		/// Get matching StatMod for given StatDef. Returns false when none.
 		/// </summary>
 		public bool GetStatValue(StatDef stat, out StatMod mod)
 		{

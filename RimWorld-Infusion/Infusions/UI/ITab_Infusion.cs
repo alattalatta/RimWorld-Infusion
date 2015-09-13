@@ -13,7 +13,7 @@ namespace Infusion
         {
             get
             {
-                var thing = Verse.Find.Selector.SingleSelectedThing;
+                var thing = Find.Selector.SingleSelectedThing;
                 return thing?.TryGetComp< CompInfusion >();
             }
         }
@@ -41,20 +41,27 @@ namespace Infusion
             Text.Font = GameFont.Small;
             QualityCategory qc;
             SelectedCompInfusion.parent.TryGetQuality( out qc );
-            label = qc.GetLabel().CapitalizeFirst() + " " + ResourceBank.StringQuality.Translate() + " ";
+
+			var subLabel = new StringBuilder();
+	        subLabel.Append( qc.GetLabel().CapitalizeFirst() )
+	                    .Append( " " )
+	                    .Append( ResourceBank.StringQuality )
+	                    .Append( " " );
             if ( SelectedCompInfusion.parent.Stuff != null )
             {
-                label += SelectedCompInfusion.parent.Stuff.LabelAsStuff + " ";
+	            subLabel.Append( SelectedCompInfusion.parent.Stuff.LabelAsStuff ).Append( " " );
             }
-            Widgets.Label( rectQuality, label + SelectedCompInfusion.parent.def.label );
-            GUI.color = Color.white;
+	        subLabel.Append( SelectedCompInfusion.parent.def.label );
 
-            Text.Anchor = TextAnchor.UpperLeft;
-            //Infusion descriptions
-            var rectDesc = rectBase;
+            Widgets.Label( rectQuality, subLabel.ToString() );
+            GUI.color = Color.white;
+			
+			//Infusion descriptions
+			Text.Anchor = TextAnchor.UpperLeft;
+			var rectDesc = rectBase;
             rectDesc.yMin += 56;
             Text.Font = GameFont.Small;
-            Widgets.Label( rectDesc, SelectedCompInfusion.parent.GetInfusedDescriptionITab() );
+            Widgets.Label( rectDesc, SelectedCompInfusion.parent.GetInfusionDesc() );
         }
 
         private static string GetRectLabel()

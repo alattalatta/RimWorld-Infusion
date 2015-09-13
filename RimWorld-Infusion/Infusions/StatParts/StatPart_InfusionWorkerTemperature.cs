@@ -38,7 +38,6 @@ namespace Infusion
             {
                 result.Append( "    " + pawn.equipment.Primary.GetInfusedLabel().CapitalizeFirst() + ": x" );
                 result.AppendLine( mod.multiplier.ToStringPercent() );
-                return result.ToString();
             }
 
             return result.ToString();

@@ -8,14 +8,9 @@ using Verse;
 namespace Infusion
 {
     //Modifier will change item's stats.
-
-    [SuppressMessage( "ReSharper", "MemberCanBePrivate.Global" )]
-    [SuppressMessage( "ReSharper", "InconsistentNaming" )]
-    [SuppressMessage( "ReSharper", "FieldCanBeMadeReadOnly.Global" )]
+	
     public class StatPart_InfusionModifier : StatPart
     {
-        //As StatPart itself has no information about what it's adjusting, we will take a detour.
-        //This string, notifier, has to be written in XML by mod maker.
         public string notifier; //Important: Must target its parent StatDef!
         public string offsetSuffix = null;
         public bool offsetUsePercentage = true;
@@ -117,12 +112,11 @@ namespace Infusion
                 }
                 result.AppendLine( offsetValue );
             }
-            if ( mod.multiplier.FloatNotEqual( 1 ) )
-            {
-                result.Append( "    " + inf.label.CapitalizeFirst() + ": x" );
-                result.AppendLine( mod.multiplier.ToStringPercent() );
-                return result.ToString();
-            }
+	        if ( mod.multiplier.FloatNotEqual( 1 ) )
+	        {
+		        result.Append( "    " + inf.label.CapitalizeFirst() + ": x" );
+		        result.AppendLine( mod.multiplier.ToStringPercent() );
+	        }
 
             return result.ToString();
         }
