@@ -163,8 +163,11 @@ namespace Infusion
 			Scribe_Values.LookValue( ref prefix, "prefix", null );
 			Scribe_Values.LookValue( ref suffix, "suffix", null );
 
-			if ( prefix.ToInfusionDef() == null || suffix.ToInfusionDef() == null )
+			if ( (prefix != null && prefix.ToInfusionDef() == null) || (suffix != null && suffix.ToInfusionDef() == null) )
 			{
+#if DEBUG
+				Log.Warning( "LT-IN: Could not find some of InfusionDef." + prefix + "/" + suffix );
+#endif
 				tried = false;
 			}
 		}

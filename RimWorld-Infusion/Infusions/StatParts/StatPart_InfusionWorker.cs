@@ -27,49 +27,44 @@ namespace Infusion
             if ( pawn.equipment.Primary != null )
             {
                 InfusionSet inf;
-                if ( !pawn.equipment.Primary.TryGetInfusions( out inf ) )
+                if (pawn.equipment.Primary.TryGetInfusions( out inf ))
                 {
-                    return;
-                }
+                    StatMod mod;
+                    var stat = notifier.ToStatDef();
+                    if (stat == null)
+                    {
+                        Log.ErrorOnce( "Could not find notifier's StatDef, which is " + notifier, 3388123 );
+                        return;
+                    }
+                    var prefix = inf.Prefix.ToInfusionDef();
+                    var suffix = inf.Suffix.ToInfusionDef();
 
-                StatMod mod;
-                var stat = notifier.ToStatDef();
-                if ( stat == null )
-                {
-                    Log.ErrorOnce( "Could not find notifier's StatDef, which is " + notifier, 3388123 );
-                    return;
+                    if (!inf.PassPre && prefix.GetStatValue( stat, out mod ))
+                    {
+                        val += mod.offset;
+                        val *= mod.multiplier;
+                    }
+                    if (!inf.PassSuf && suffix.GetStatValue( stat, out mod ))
+                    {
+                        val += mod.offset;
+                        val *= mod.multiplier;
+                    }
                 }
-                var prefix = inf.Prefix.ToInfusionDef();
-                var suffix = inf.Suffix.ToInfusionDef();
-
-                if ( !inf.PassPre && prefix.GetStatValue( stat, out mod ) )
-                {
-                    val += mod.offset;
-                    val *= mod.multiplier;
-                }
-                if ( inf.PassSuf || !suffix.GetStatValue( stat, out mod ) )
-                {
-                    return;
-                }
-
-                val += mod.offset;
-                val *= mod.multiplier;
             }
 
             //Pawn has apparels
-            if ( pawn.apparel.WornApparelCount != 0 )
+            if (pawn.apparel.WornApparelCount == 0)
             {
-                foreach ( var current in pawn.apparel.WornApparel )
+                return;
+            }
+            foreach ( var current in pawn.apparel.WornApparel )
+            {
+                InfusionSet inf;
+                if (current.TryGetInfusions( out inf ))
                 {
-                    InfusionSet inf;
-                    if ( !current.TryGetInfusions( out inf ) )
-                    {
-                        continue;
-                    }
-
                     StatMod mod;
                     var stat = notifier.ToStatDef();
-                    if ( stat == null )
+                    if (stat == null)
                     {
                         Log.ErrorOnce( "Could not find notifier's StatDef, which is " + notifier, 3388123 );
                         continue;
@@ -77,12 +72,12 @@ namespace Infusion
                     var prefix = inf.Prefix.ToInfusionDef();
                     var suffix = inf.Suffix.ToInfusionDef();
 
-                    if ( !inf.PassPre && prefix.GetStatValue( stat, out mod ) )
+                    if (!inf.PassPre && prefix.GetStatValue( stat, out mod ))
                     {
                         val += mod.offset;
                         val *= mod.multiplier;
                     }
-                    if ( !inf.PassSuf && suffix.GetStatValue( stat, out mod ) )
+                    if (!inf.PassSuf && suffix.GetStatValue( stat, out mod ))
                     {
                         val += mod.offset;
                         val *= mod.multiplier;
