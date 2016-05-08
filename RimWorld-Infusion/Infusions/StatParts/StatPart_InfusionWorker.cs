@@ -11,17 +11,24 @@ namespace Infusion
     {
         public override void TransformValue( StatRequest req, ref float val )
         {
-            if ( !req.HasThing || req.Def.defName != "Human" )
+            if ( !req.HasThing)
             {
                 return;
             }
 
+            if (!(req.Thing is Pawn)) { return; }
+
             var pawn = req.Thing as Pawn;
+
             //Just in case
-            if ( pawn == null )
+            if (pawn == null)
             {
                 return;
             }
+
+            if (pawn.RaceProps == null) { return; }
+            if (!pawn.RaceProps.Humanlike) { return; }
+
 
             //Pawn has a primary weapon
             if ( pawn.equipment.Primary != null )
@@ -88,17 +95,24 @@ namespace Infusion
 
         public override string ExplanationPart( StatRequest req )
         {
-            if ( !req.HasThing || req.Thing.def.defName != "Human" )
+            if (!req.HasThing)
             {
                 return null;
             }
 
-            //Just in case
+            if (!(req.Thing is Pawn)) { return null; }
+
             var pawn = req.Thing as Pawn;
-            if ( pawn == null )
+
+            //Just in case
+            if (pawn == null)
             {
                 return null;
             }
+
+            if (pawn.RaceProps == null) { return null; }
+            if (!pawn.RaceProps.Humanlike) { return null; }
+
 
             InfusionSet infusions;
             var result = new StringBuilder();
